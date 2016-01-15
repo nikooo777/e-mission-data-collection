@@ -3,7 +3,7 @@ package edu.berkeley.eecs.cfc_tracker;
 import android.os.Bundle;
 import android.app.Activity;
 
-public class ODBActivity extends Activity {
+public class OBDActivity extends Activity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

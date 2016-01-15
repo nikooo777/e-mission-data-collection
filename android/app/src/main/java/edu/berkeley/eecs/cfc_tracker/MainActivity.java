@@ -14,6 +14,7 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.text.method.ScrollingMovementMethod;
 import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -32,7 +33,7 @@ import edu.berkeley.eecs.cfc_tracker.log.DatabaseLogHandler;
 import edu.berkeley.eecs.cfc_tracker.log.Log;
 import edu.berkeley.eecs.cfc_tracker.usercache.BuiltinUserCache;
 
-public class MainActivity extends Activity {
+public class    MainActivity extends Activity {
     boolean initDone = false;
     // The authority for the sync adapter's content provider
     public static final String AUTHORITY = "edu.berkeley.eecs.cfc_tracker.provider";
@@ -130,6 +131,16 @@ public class MainActivity extends Activity {
 		getMenuInflater().inflate(R.menu.main, menu);
 		return true;
 	}
+
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle item selection
+        switch (item.getItemId()) {
+            case R.id.action_obd:
+                Log.d(this, this.getClass().getName(), "OBD Start");
+                return true;
+        }
+        return false;
+    }
 
 	public void startTracking(View view) {
 		System.out.println("MainActivity sending start service !!");
