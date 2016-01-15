@@ -42,13 +42,15 @@ public class OBDMainService extends Service {
 
 
 
+    public void connectToAdapter(String dev) throws ConnectionException{
+        carManager.connectToAdapter(dev);
+        Toast.makeText(getApplicationContext(), "Connected to:" + dev, Toast.LENGTH_SHORT).show();
+    }
 
-    public void startOBDRecording(String dev) throws ConnectionException {
+
+    public void startOBDRecording()  {
         // carManager.connectToAdapter(dev);
 
-        carManager.connectToAdapter(dev);
-
-        Toast.makeText(getApplicationContext(), "Connected to:" + dev, Toast.LENGTH_SHORT).show();
         RecordingThread.startRecording(this);
         Toast.makeText(getApplicationContext(), "Start recording", Toast.LENGTH_SHORT).show();
 
@@ -56,8 +58,7 @@ public class OBDMainService extends Service {
 
 
     public void stopOBDRecording(){
-       /* RecordingThread.stopRecording();
-        SensorFile.closeFile(); */
+        RecordingThread.stopRecording();
         carManager.disconnectToCar();
         Toast.makeText(getApplicationContext(), "Stop recording", Toast.LENGTH_SHORT).show();
 

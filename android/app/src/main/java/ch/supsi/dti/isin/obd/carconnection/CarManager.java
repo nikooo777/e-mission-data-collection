@@ -4,8 +4,10 @@ package ch.supsi.dti.isin.obd.carconnection;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
+import android.graphics.Color;
 import android.util.Log;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.UUID;
 
@@ -15,11 +17,14 @@ import ch.supsi.dti.isin.obd.obd_commands.FuelEconomyObdCommand;
 import obd.commands.SpeedCommand;
 import obd.commands.engine.RPMCommand;
 import obd.commands.engine.ThrottlePositionCommand;
+import obd.commands.fuel.FindFuelTypeCommand;
 import obd.commands.fuel.FuelLevelCommand;
 import obd.commands.protocol.LineFeedOffCommand;
 import obd.commands.protocol.SelectProtocolCommand;
 import obd.commands.protocol.TimeoutCommand;
 import obd.enums.ObdProtocols;
+import obd.exceptions.NoDataException;
+import obd.exceptions.UnsupportedCommandException;
 
 /**
  * Created by Alan on 18/09/15.
@@ -46,6 +51,7 @@ public class CarManager {
     private String commands;
     private boolean connected = false;
 
+
     public boolean fineMode = true;
 
     private FuelLevelCommand fuelLevelCommand = new FuelLevelCommand();
@@ -53,6 +59,18 @@ public class CarManager {
     private SpeedCommand speedCommand = new SpeedCommand();
     private FuelEconomyObdCommand fuelEconomy;
     private ThrottlePositionCommand throttlePositionObdCommand;
+
+
+
+
+    public String getFuelType(){
+        return fuelType;
+    }
+
+
+    public void setFuelType(String ft){
+        fuelType = ft;
+    }
 
 
 
@@ -100,12 +118,15 @@ public class CarManager {
                 String type = fuelTypeObdCommand.getFormattedResult();
                 fuelType = type;
 */
-                fuelType  = "Gasoline";
+
                  fuelEconomy = new FuelEconomyObdCommand(fuelType, commands);
                  throttlePositionObdCommand = new ThrottlePositionCommand();
 
 
                 connected = true;
+
+                fuelType = checkFuelType();
+
            } catch (Exception e) {
                 Log.d("Exception", "Bluetooth IO Exception c");
                 throw new ConnectionException();
@@ -223,5 +244,37 @@ public class CarManager {
             connected = false;
 
         }
+    }
+
+
+
+
+    private String checkFuelType() {
+        //new instance of the command fuelType
+        FindFuelTypeCommand fuelTypeObdCommand = new FindFuelTypeCommand();
+        String ft = "";
+        try {
+            fuelTypeObdCommand.run(sock.getInputStream(), sock.getOutputStream());
+            String type = fuelTypeObdCommand.getFormattedResult();
+            if (type.equals("Gasoline")) {
+               return "Gasoline";
+            } else if (type.equals("Diesel")) {
+                return "Diesel";
+            }
+        } catch (IOException e) {
+            Log.d(this.getClass().getName(), "Fuel type: " + "unknown, IOException occurred");
+        } catch (NoDataException e) {
+            Log.d(this.getClass().getName(), "Fuel type: " + "unknown, NoDataException occurred");
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (IndexOutOfBoundsException e) {
+            Log.d(this.getClass().getName(), "Fuel type: " + "unknown, IndexOutOfBoundsException occurred");
+        } catch (UnsupportedCommandException e) {
+            Log.d(this.getClass().getName(), "Fuel type: " + "unknown, UnsupportedCommandException occurred");
+
+        }
+
+        return "";
+
     }
 }

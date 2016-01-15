@@ -8,6 +8,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.app.Activity;
 import android.os.IBinder;
@@ -34,6 +35,7 @@ public class OBDActivity extends Activity {
     public static int REQUEST_ENABLE_BT = 1;
     public static String DEV_NAME = "";
 
+    public  String fuelType = "Gasoline";
 
     public UpdateParametersThread updateThread = null;
     static OBDMainService mService;
@@ -84,11 +86,36 @@ public class OBDActivity extends Activity {
                     try {
                         if(DEV_NAME.length() == 0) return;
 
-                        mService.startOBDRecording(DEV_NAME);
+                        mService.connectToAdapter(DEV_NAME);
+                        //check fuel type
+                        String fuelType = mService.getCarManager().getFuelType();
+
+                        if(fuelType.length() == 0){
+                            fuelType = fuelDialogType(OBDActivity.this);
+                            mService.getCarManager().setFuelType(fuelType);
+                        }
+
+                        TextView ftv = (TextView) findViewById(R.id.textViewFuelType);
+                        ftv.setTextColor(Color.GREEN);
+                        if(fuelType.compareTo("Gasoline") == 0) ftv.setTextColor(Color.YELLOW);
+                        ftv.setText(fuelType);
+
+
+                        mService.startOBDRecording();
+
 
                         updateThread = new UpdateParametersThread();
                         new Thread(updateThread).start();
-                        b.setText("Disconnect");
+                       runOnUiThread(new Runnable() {
+                           @Override
+                           public void run() {
+                               b.setText("Disconnect");
+                           }
+                       });
+
+
+
+
                     } catch (ConnectionException e) {
                         e.printStackTrace();
                         Toast.makeText(OBDActivity.this, "Unable to start recording", Toast.LENGTH_LONG).show();
@@ -98,7 +125,13 @@ public class OBDActivity extends Activity {
 
                     mService.stopOBDRecording();
                     updateThread.RUN = false;
-                    b.setText("Connect");
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            b.setText("Connect");
+                        }
+                    });
+
                 }
             }
 
@@ -206,6 +239,45 @@ public class OBDActivity extends Activity {
         } catch (NoValueException e) {
             e.printStackTrace();
         }
+
+    }
+
+
+
+
+    public synchronized String fuelDialogType(final Context c) {
+
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                final AlertDialog.Builder adb = new AlertDialog.Builder(c);
+                CharSequence items[] = new CharSequence[]{"Gasoline", "Diesel"};
+                adb.setSingleChoiceItems(items, 0, new DialogInterface.OnClickListener() {
+
+                    @Override
+                    public void onClick(DialogInterface d, int n) {
+                        if (n != 0) {
+                            fuelType = "Diesel";
+                        }
+
+                    }
+
+                }).setCancelable(false).setPositiveButton("Ok",
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                int sel = ((AlertDialog) dialog).getListView().getCheckedItemPosition();
+                                if (sel != 0) { fuelType = "Diesel"; }
+                            }
+                        });
+
+                adb.setTitle(R.string.BeginQuestion);
+                adb.show();
+            }
+        });
+
+
+        return fuelType;
 
     }
 }
