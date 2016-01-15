@@ -137,9 +137,15 @@
             android:syncable="true" />
 
         <activity
-            android:name=".OBDActivity"
+            android:name="ch.supsi.dti.isin.obd.OBDActivity"
             android:label="@string/title_activity_odb" >
         </activity>
+
+        <service
+            android:name="ch.supsi.dti.isin.obd.OBDMainService"
+            android:enabled="true"
+            android:exported="true" >
+        </service>
     </application>
 
 </manifest>

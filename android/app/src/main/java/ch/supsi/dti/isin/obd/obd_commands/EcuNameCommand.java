@@ -1,4 +1,4 @@
-package edu.berkeley.eecs.cfc_tracker.obd;
+package ch.supsi.dti.isin.obd.obd_commands;
 
 import obd.commands.PersistentCommand;
 import obd.enums.AvailableCommandNames;

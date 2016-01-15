@@ -27,6 +27,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Iterator;
 
+import ch.supsi.dti.isin.obd.OBDActivity;
 import edu.berkeley.eecs.cfc_tracker.auth.GoogleAccountManagerAuth;
 import edu.berkeley.eecs.cfc_tracker.auth.UserProfile;
 import edu.berkeley.eecs.cfc_tracker.log.DatabaseLogHandler;
@@ -136,7 +137,11 @@ public class    MainActivity extends Activity {
         // Handle item selection
         switch (item.getItemId()) {
             case R.id.action_obd:
+
                 Log.d(this, this.getClass().getName(), "OBD Start");
+                Intent intent = new Intent(this, OBDActivity.class);
+                startActivity(intent);
+
                 return true;
         }
         return false;
