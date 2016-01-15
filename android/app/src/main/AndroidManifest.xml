@@ -9,18 +9,21 @@
         android:targetSdkVersion="21" />
 
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
-    <uses-permission android:name="com.google.android.gms.permission.ACTIVITY_RECOGNITION"/>
+    <uses-permission android:name="com.google.android.gms.permission.ACTIVITY_RECOGNITION" />
     <!-- COARSE_LOCATION obfuscates the location to a city block, change to FINE_LOCATION for accuracy -->
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <!-- Added to allow us to upload data to the internet -->
-    <uses-permission android:name="android.permission.INTERNET"/>
-    <uses-permission android:name="android.permission.READ_SYNC_SETTINGS"/>
-    <uses-permission android:name="android.permission.WRITE_SYNC_SETTINGS"/>
-    <uses-permission android:name="android.permission.AUTHENTICATE_ACCOUNTS"/>
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.READ_SYNC_SETTINGS" />
+    <uses-permission android:name="android.permission.WRITE_SYNC_SETTINGS" />
+    <uses-permission android:name="android.permission.AUTHENTICATE_ACCOUNTS" />
     <!-- We need this in order to check for existing accounts before creating a new account. Need to figure out a better way to do this so that people don't get freaked out -->
-    <uses-permission android:name="android.permission.GET_ACCOUNTS"/>
-    <uses-permission android:name="android.permission.MANAGE_ACCOUNTS"/>
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.GET_ACCOUNTS" />
+    <uses-permission android:name="android.permission.MANAGE_ACCOUNTS" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+
+    <android:uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <android:uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
     <application
         android:allowBackup="true"
@@ -28,10 +31,11 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
         <meta-data
-        android:name="com.google.android.gms.version"
-        android:value="@integer/google_play_services_version" />
+            android:name="com.google.android.gms.version"
+            android:value="@integer/google_play_services_version" />
+
         <activity
-            android:name="edu.berkeley.eecs.cfc_tracker.MainActivity"
+            android:name=".MainActivity"
             android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -41,7 +45,7 @@
         </activity>
 
         <receiver
-            android:name="edu.berkeley.eecs.cfc_tracker.BootReceiver"
+            android:name=".BootReceiver"
             android:enabled="true" >
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" >
@@ -49,88 +53,93 @@
             </intent-filter>
         </receiver>
         <receiver
-            android:name="edu.berkeley.eecs.cfc_tracker.WakeupReceiver"
-            android:enabled="true">
+            android:name=".WakeupReceiver"
+            android:enabled="true" >
             <intent-filter>
-                <action android:name="edu.berkeley.eecs.cfc_tracker.startMonitoring_dropoff"></action>
-                <action android:name="edu.berkeley.eecs.cfc_tracker.stopMonitoring_dropoff"></action>
-                <action android:name="edu.berkeley.eecs.cfc_tracker.startMonitoring_pickup"></action>
-                <action android:name="edu.berkeley.eecs.cfc_tracker.stopMonitoring_pickup"></action>
+                <action android:name="edu.berkeley.eecs.cfc_tracker.startMonitoring_dropoff" />
+                <action android:name="edu.berkeley.eecs.cfc_tracker.stopMonitoring_dropoff" />
+                <action android:name="edu.berkeley.eecs.cfc_tracker.startMonitoring_pickup" />
+                <action android:name="edu.berkeley.eecs.cfc_tracker.stopMonitoring_pickup" />
             </intent-filter>
         </receiver>
-
         <receiver
-            android:name="edu.berkeley.eecs.cfc_tracker.location.TripDiaryStateMachineReceiver"
-            android:enabled="true">
+            android:name=".location.TripDiaryStateMachineReceiver"
+            android:enabled="true" >
             <intent-filter>
-                <action android:name="local.transition.initialize"></action>
-                <action android:name="local.transition.exited_geofence"></action>
-                <action android:name="local.transition.stopped_moving"></action>
-                <action android:name="local.transition.stop_tracking"></action>
+                <action android:name="local.transition.initialize" />
+                <action android:name="local.transition.exited_geofence" />
+                <action android:name="local.transition.stopped_moving" />
+                <action android:name="local.transition.stop_tracking" />
+            </intent-filter>
+        </receiver>
+        <receiver android:name=".BatteryLevelReceiver" >
+            <intent-filter>
+                <action android:name="android.intent.action.ACTION_BATTERY_LOW" />
+                <action android:name="android.intent.action.ACTION_BATTERY_OKAY" />
             </intent-filter>
         </receiver>
 
-        <receiver android:name="edu.berkeley.eecs.cfc_tracker.BatteryLevelReceiver">
-			<intent-filter>
-  				<action android:name="android.intent.action.ACTION_BATTERY_LOW"/>
-  				<action android:name="android.intent.action.ACTION_BATTERY_OKAY"/>
-  			</intent-filter>
-		</receiver>
-        
         <service
-            android:name="edu.berkeley.eecs.cfc_tracker.CommuteTrackerService"
-            android:enabled="true">
+            android:name=".CommuteTrackerService"
+            android:enabled="true" >
+        </service>
+        <service android:name=".smap.AuthenticatorService" >
+            <intent-filter>
+                <action android:name="android.accounts.AccountAuthenticator" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.accounts.AccountAuthenticator"
+                android:resource="@xml/authenticator" />
+        </service>
+        <service
+            android:name=".location.ActivityRecognitionChangeIntentService"
+            android:enabled="true"
+            android:exported="false" >
+        </service>
+        <service
+            android:name=".location.TripDiaryStateMachineService"
+            android:enabled="true"
+            android:exported="false" >
+        </service>
+        <service
+            android:name=".location.TripDiaryStateMachineServiceOngoing"
+            android:enabled="true"
+            android:exported="false" >
+        </service>
+        <service
+            android:name=".location.GeofenceExitIntentService"
+            android:enabled="true"
+            android:exported="false" >
+        </service>
+        <service
+            android:name=".location.LocationChangeIntentService"
+            android:enabled="true"
+            android:exported="false" >
+        </service>
+        <service
+            android:name=".smap.SyncService"
+            android:exported="true"
+            android:process=":sync" >
+            <intent-filter>
+                <action android:name="android.content.SyncAdapter" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.content.SyncAdapter"
+                android:resource="@xml/syncadapter" />
         </service>
 
-        <service
-            android:name="edu.berkeley.eecs.cfc_tracker.smap.AuthenticatorService">
-        	<intent-filter>
-            	<action android:name="android.accounts.AccountAuthenticator"/>
-        	</intent-filter>
-        	<meta-data
-            	android:name="android.accounts.AccountAuthenticator"
-            	android:resource="@xml/authenticator" />
-    	</service>
-        <service
-		    android:name="edu.berkeley.eecs.cfc_tracker.location.ActivityRecognitionChangeIntentService"
-		    android:enabled="true" 
-		    android:exported="false">
-		</service>
-        <service
-            android:name="edu.berkeley.eecs.cfc_tracker.location.TripDiaryStateMachineService"
-            android:enabled="true"
-            android:exported="false">
-        </service>
-        <service
-            android:name="edu.berkeley.eecs.cfc_tracker.location.TripDiaryStateMachineServiceOngoing"
-            android:enabled="true"
-            android:exported="false">
-        </service>
-        <service
-		    android:name="edu.berkeley.eecs.cfc_tracker.location.GeofenceExitIntentService"
-		    android:enabled="true" 
-		    android:exported="false">
-		</service>
-		<service 
-		    android:name="edu.berkeley.eecs.cfc_tracker.location.LocationChangeIntentService"
-		    android:enabled="true" 
-		    android:exported="false">
-		</service>
-		<service
-                android:name="edu.berkeley.eecs.cfc_tracker.smap.SyncService"
-                android:exported="true"
-                android:process=":sync">
-            <intent-filter>
-                <action android:name="android.content.SyncAdapter"/>
-            </intent-filter>
-            <meta-data android:name="android.content.SyncAdapter"
-                    android:resource="@xml/syncadapter" />
-        </service>
-    	<provider
-        	android:name="edu.berkeley.eecs.cfc_tracker.smap.StubContentProvider"
-        	android:authorities="edu.berkeley.eecs.cfc_tracker.provider"
-        	android:exported="false"
-        	android:syncable="true"/>
+        <provider
+            android:name=".smap.StubContentProvider"
+            android:authorities="edu.berkeley.eecs.cfc_tracker.provider"
+            android:exported="false"
+            android:syncable="true" />
+
+        <activity
+            android:name=".ODBActivity"
+            android:label="@string/title_activity_odb" >
+        </activity>
     </application>
 
 </manifest>

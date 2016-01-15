@@ -69,4 +69,5 @@
     <string name="clear">Clear DB</string>
     <string name="login">Login to google</string>
     <string name="exportDB">Export DB</string>
+    <string name="title_activity_odb">ODBActivity</string>
 </resources>
