@@ -69,6 +69,9 @@ public class FuelEconomyObdCommand extends ObdCommand {
         final SpeedCommand speedCommand = new SpeedCommand();
         speedCommand.run(in, out);
         float speed=speedCommand.getMetricSpeed();
+
+        //TODO: FIX MAF
+
         if(supRate){
             Log.d(TAG, "Fuel rate supported:");
             ConsumptionRateCommand rateCommand = new ConsumptionRateCommand();
@@ -111,10 +114,13 @@ public class FuelEconomyObdCommand extends ObdCommand {
             Log.d(TAG, "Alternative MAF + Gasoline:");
             //get alternative MAF
             final RPMCommand engineRpmCommand = new RPMCommand();
+            System.err.println("Here");
             engineRpmCommand.run(in, out);
             float RPM=(float)engineRpmCommand.getRPM();
+            System.err.println(RPM);
             //get manifold pressure
             final IntakeManifoldPressureCommand pressureCommand = new IntakeManifoldPressureCommand();
+            System.err.println(pressureCommand);
             pressureCommand.run(in, out);
             float MAP=(float)pressureCommand.getMetricUnit();
             //get intake temperature

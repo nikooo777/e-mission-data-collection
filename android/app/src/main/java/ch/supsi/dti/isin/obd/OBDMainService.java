@@ -7,6 +7,7 @@ import android.hardware.SensorManager;
 import android.location.LocationManager;
 import android.os.Binder;
 import android.os.IBinder;
+import android.util.Log;
 import android.widget.Toast;
 
 import java.util.HashMap;
@@ -43,6 +44,7 @@ public class OBDMainService extends Service {
 
 
     public void connectToAdapter(String dev) throws ConnectionException{
+
         carManager.connectToAdapter(dev);
         Toast.makeText(getApplicationContext(), "Connected to:" + dev, Toast.LENGTH_SHORT).show();
     }
@@ -50,6 +52,7 @@ public class OBDMainService extends Service {
 
     public void startOBDRecording()  {
         // carManager.connectToAdapter(dev);
+
 
         RecordingThread.startRecording(this);
         Toast.makeText(getApplicationContext(), "Start recording", Toast.LENGTH_SHORT).show();

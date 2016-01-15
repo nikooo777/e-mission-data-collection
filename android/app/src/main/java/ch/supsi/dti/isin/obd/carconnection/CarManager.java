@@ -54,6 +54,12 @@ public class CarManager {
 
     public boolean fineMode = true;
 
+    long previousTime = 0;
+    long previousSpeed = 0;
+    float previousFlow = 0;
+    float kmODO = 0.f;
+
+
     private FuelLevelCommand fuelLevelCommand = new FuelLevelCommand();
     private RPMCommand engineRpmCommand = new RPMCommand();
     private SpeedCommand speedCommand = new SpeedCommand();
@@ -88,6 +94,9 @@ public class CarManager {
 
     public void connectToAdapter(String _devAddress) throws ConnectionException {
            devAddress = _devAddress;
+            kmODO = 0.f;
+
+            Log.d(getClass().getName(), "entering connectToAdapter");
 
             BluetoothAdapter btAdapter = BluetoothAdapter.getDefaultAdapter();
             BluetoothDevice device = btAdapter.getRemoteDevice(devAddress);
@@ -149,9 +158,7 @@ public class CarManager {
         float tankLevel = 0.f;
         float finalTankLevel = 0.f;
 
-        long previousTime = System.currentTimeMillis();
-        long previousSpeed = speedCommand.getMetricSpeed();
-        float previousFlow = fuelEconomy.getFlow();
+
 
 
         if (!connected) throw new ConnectionException();
@@ -166,9 +173,27 @@ public class CarManager {
             speedResult = speedCommand.getFormattedResult();
 
 
+            if (engineRpmCommand.getRPM() >= 1200) {
+
+                throttlePositionObdCommand.run(sock.getInputStream(), sock.getOutputStream());
+                if (((int) throttlePositionObdCommand.getPercentage()) == 0) {
+                    fuelFlow = "" + 0 + " L/h";
+                    fuelResult = "" + 0 + " LHK";
+                    //cut off
+                    fuelEconomy.setFlow(0.f);
+                } else {
+                    fuelEconomy.run(sock.getInputStream(), sock.getOutputStream());
+                    fuelFlow = "" + String.format("%.3f", fuelEconomy.getFlow()) + " L/h";
+                    fuelResult = fuelEconomy.getFormattedResult();
+                }
+
+            }
+
+
+
 
         //managing fuel flow rate = 0 when the car is moving but you are not accelerating
-        if (engineRpmCommand.getRPM() >= 1200) {
+  /*      if (engineRpmCommand.getRPM() >= 1200) {
             throttlePositionObdCommand.run(sock.getInputStream(), sock.getOutputStream());
             if (((int) throttlePositionObdCommand.getPercentage()) == 0) {
                 fuelFlow = "" + 0 + " L/h";
@@ -193,19 +218,23 @@ public class CarManager {
             fuelLevelCommand.run(sock.getInputStream(), sock.getOutputStream());
             if (fuelLevelCommand.getFuelLevel() > 1.0f && tankLevel != -1.0f) {
                 finalTankLevel = tankLevel - fuelLevelCommand.getFuelLevel();
-            }
+            }*/
 
 
 
 
 
-            float kmODO = 0.f;
+
+
+
             float fuelCons = 0.f;
 
             long currentTime = System.currentTimeMillis();
             long deltaTime = currentTime - previousTime;
             previousTime = currentTime;
+            Log.d(this.getClass().getName(), deltaTime+" "+currentTime+" "+previousTime);
 
+            fineMode=false;
 
             if (fineMode) {
                 kmODO += ((float) speedCommand.getMetricSpeed()) * ((float) deltaTime) / 1000 / 3600;
@@ -215,7 +244,11 @@ public class CarManager {
                 long currSpeed = speedCommand.getMetricSpeed();
                 long avgSpeed = (currSpeed + previousSpeed) / 2;
                 previousSpeed = currSpeed;
-                kmODO += ((float) avgSpeed) * ((float) deltaTime) / 1000 / 3600;
+
+
+
+
+                kmODO += ((double) avgSpeed) * ((double) deltaTime) / 1000 / 3600;
                 odometer = "" + String.format("%.3f", kmODO) + " Km";
             }
 

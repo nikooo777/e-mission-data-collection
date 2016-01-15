@@ -68,9 +68,14 @@ public class RecordingThread implements Runnable {
                     HashMap<String, String> carInfo = serv.getCarManager().queryForParameters();
                     String res = "";
 
+
+
                     for(String key: carInfo.keySet()){
                         res+= key+"="+carInfo.get(key)+", ";
                     }
+
+                    storeCurrentValues(carInfo);
+
 
                     OutputFile.saveData(res);
                     Log.d(this.getClass().getName(), "Storing car data: "+res);

@@ -73,6 +73,54 @@ public class OBDActivity extends Activity {
     };
 
 
+    public void postBTselection() {
+
+
+        try {
+            if(DEV_NAME.length() == 0) return;
+
+            Log.d(OBDActivity.this, this.getClass().getName(), DEV_NAME);
+
+            mService.connectToAdapter(DEV_NAME);
+            //check fuel type
+            String fuelType = mService.getCarManager().getFuelType();
+
+            if(fuelType.length() == 0){
+                fuelType = fuelDialogType(OBDActivity.this);
+                mService.getCarManager().setFuelType(fuelType);
+            }
+
+            TextView ftv = (TextView) findViewById(R.id.textViewFuelType);
+            ftv.setTextColor(Color.GREEN);
+            if(fuelType.compareTo("Gasoline") == 0) ftv.setTextColor(Color.YELLOW);
+            ftv.setText(fuelType);
+
+
+            mService.startOBDRecording();
+
+
+            updateThread = new UpdateParametersThread();
+            new Thread(updateThread).start();
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                   Button b = (Button)findViewById(R.id.button);
+                    b.setText("Disconnect");
+                }
+            });
+
+
+
+
+        } catch (ConnectionException e) {
+            e.printStackTrace();
+            Toast.makeText(OBDActivity.this, "Unable to start recording", Toast.LENGTH_LONG).show();
+
+        }
+
+
+    }
+
 
     public void serviceConnected(){
         final Button b = (Button)findViewById(R.id.button);
@@ -83,44 +131,8 @@ public class OBDActivity extends Activity {
             public void onClick(View v) {
                 if(!mService.isRecording()) {
                     selectBTDevice();
-                    try {
-                        if(DEV_NAME.length() == 0) return;
-
-                        mService.connectToAdapter(DEV_NAME);
-                        //check fuel type
-                        String fuelType = mService.getCarManager().getFuelType();
-
-                        if(fuelType.length() == 0){
-                            fuelType = fuelDialogType(OBDActivity.this);
-                            mService.getCarManager().setFuelType(fuelType);
-                        }
-
-                        TextView ftv = (TextView) findViewById(R.id.textViewFuelType);
-                        ftv.setTextColor(Color.GREEN);
-                        if(fuelType.compareTo("Gasoline") == 0) ftv.setTextColor(Color.YELLOW);
-                        ftv.setText(fuelType);
 
 
-                        mService.startOBDRecording();
-
-
-                        updateThread = new UpdateParametersThread();
-                        new Thread(updateThread).start();
-                       runOnUiThread(new Runnable() {
-                           @Override
-                           public void run() {
-                               b.setText("Disconnect");
-                           }
-                       });
-
-
-
-
-                    } catch (ConnectionException e) {
-                        e.printStackTrace();
-                        Toast.makeText(OBDActivity.this, "Unable to start recording", Toast.LENGTH_LONG).show();
-
-                    }
                 }else{
 
                     mService.stopOBDRecording();
@@ -180,7 +192,7 @@ public class OBDActivity extends Activity {
 
                     DEV_NAME = deviceAddress;
                     Log.d(OBDActivity.this, this.getClass().getName(), "BT="+deviceAddress);
-
+                    postBTselection();
 
 
                 }
@@ -209,12 +221,16 @@ public class OBDActivity extends Activity {
                 e.printStackTrace();
             }
 
-                    updateActParameters();
-            }
-        }
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
 
 
-    }
+                updateActParameters();
+            }});
+
+
+    }}}
 
 
 
@@ -226,14 +242,14 @@ public class OBDActivity extends Activity {
             rpm.setText(pm.get(CarManager.RPM));
 
             TextView speed = (TextView)findViewById(R.id.textViewSpeed);
-            rpm.setText(pm.get(CarManager.SPEED));
+            speed.setText(pm.get(CarManager.SPEED));
 
             TextView fuelFlow = (TextView)findViewById(R.id.textViewFlow);
-            rpm.setText(pm.get(CarManager.FUEL));
+            fuelFlow.setText(pm.get(CarManager.FUEL));
 
 
             TextView odometer = (TextView)findViewById(R.id.textViewODO);
-            rpm.setText(pm.get(CarManager.ODOMETER));
+            odometer.setText(pm.get(CarManager.ODOMETER));
 
 
         } catch (NoValueException e) {
