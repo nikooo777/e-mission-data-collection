@@ -51,7 +51,7 @@ public class OBDActivity extends Activity {
             mService = binder.getService();
             mBound = true;
 
-           // serviceConnected();
+            serviceConnected();
         }
 
         @Override
