@@ -31,10 +31,11 @@ public class CarManager {
 
 
     public static String FUEL_TYPE = "FT";
-    private static String RPM = "RPM";
-    private static String SPEED = "SP";
-    private static String FUEL = "FUEL";
-    private static String TANK = "TK";
+    public static String RPM = "RPM";
+    public static String SPEED = "SP";
+    public static String FUEL = "FUEL";
+    public static String TANK = "TK";
+    public static String ODOMETER = "OD";
 
     /*EOK*/
 
@@ -45,6 +46,8 @@ public class CarManager {
     private String commands;
     private boolean connected = false;
 
+    public boolean fineMode = true;
+
     private FuelLevelCommand fuelLevelCommand = new FuelLevelCommand();
     private RPMCommand engineRpmCommand = new RPMCommand();
     private SpeedCommand speedCommand = new SpeedCommand();
@@ -52,12 +55,20 @@ public class CarManager {
     private ThrottlePositionCommand throttlePositionObdCommand;
 
 
+
+
     public boolean isConnected(){
         return connected;
     }
 
 
-     public void connectToAdapter(String _devAddress) throws ConnectionException {
+    public void connectToAdapter(String _devAddress, boolean coarseMode) throws ConnectionException {
+        devAddress = _devAddress;
+        fineMode = !coarseMode;
+        connectToAdapter(_devAddress);
+    }
+
+    public void connectToAdapter(String _devAddress) throws ConnectionException {
            devAddress = _devAddress;
 
             BluetoothAdapter btAdapter = BluetoothAdapter.getDefaultAdapter();
@@ -135,7 +146,7 @@ public class CarManager {
             throttlePositionObdCommand.run(sock.getInputStream(), sock.getOutputStream());
             if (((int) throttlePositionObdCommand.getPercentage()) == 0) {
                 fuelFlow = "" + 0 + " L/h";
-                fuelResult = "" + 0 + " L/100km";
+                fuelResult = "" + 0 + " LHK";
                 //cut off
                 fuelEconomy.setFlow(0.f);
             } else {
@@ -159,6 +170,22 @@ public class CarManager {
             }
 
 
+            long previousSpeed = speedCommand.getMetricSpeed();
+            float kmODO = 0.f;
+            float fuelCons = 0.f;
+            if (fineMode) {
+                kmODO += ((float) speedCommand.getMetricSpeed()) * ((float) deltaTime) / 1000 / 3600;
+                odometer = "" + String.format("%.3f", kmODO) + " Km";
+
+            } else {
+                long currSpeed = speedCommand.getMetricSpeed();
+                long avgSpeed = (currSpeed + previousSpeed) / 2;
+                previousSpeed = currSpeed;
+                kmODO += ((float) avgSpeed) * ((float) deltaTime) / 1000 / 3600;
+                odometer = "" + String.format("%.3f", kmODO) + " Km";
+            }
+
+
 
         }catch(Exception e){
                 e.printStackTrace();
@@ -168,6 +195,7 @@ public class CarManager {
         query.put(SPEED, speedResult);
         query.put(FUEL, fuelResult);
         query.put(TANK, String.valueOf(finalTankLevel));
+        query.put(ODOMETER, odometer);
         return query;
     }
 

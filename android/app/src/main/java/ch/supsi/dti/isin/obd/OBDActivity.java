@@ -14,17 +14,28 @@ import android.os.IBinder;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Set;
 
+import ch.supsi.dti.isin.obd.carconnection.CarManager;
+import ch.supsi.dti.isin.obd.carconnection.ConnectionException;
 import edu.berkeley.eecs.cfc_tracker.R;
 import edu.berkeley.eecs.cfc_tracker.log.Log;
 
+
+/**
+ * TODO: fix fine/coars mode input
+ */
 public class OBDActivity extends Activity {
     public static int REQUEST_ENABLE_BT = 1;
+    public static String DEV_NAME = "";
 
+
+    public UpdateParametersThread updateThread = null;
     static OBDMainService mService;
     static boolean mBound = false;
 
@@ -50,10 +61,9 @@ public class OBDActivity extends Activity {
             OBDMainService.LocalBinder binder = (OBDMainService.LocalBinder) service;
             mService = binder.getService();
             mBound = true;
+                    serviceConnected();
 
-            serviceConnected();
-        }
-
+            }
         @Override
         public void onServiceDisconnected(ComponentName arg0) {
             mBound = false;
@@ -69,9 +79,30 @@ public class OBDActivity extends Activity {
         b.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if(!mService.isRecording()) {
+                    selectBTDevice();
+                    try {
+                        if(DEV_NAME.length() == 0) return;
 
-                selectBTDevice();
+                        mService.startOBDRecording(DEV_NAME);
+
+                        updateThread = new UpdateParametersThread();
+                        new Thread(updateThread).start();
+                        b.setText("Disconnect");
+                    } catch (ConnectionException e) {
+                        e.printStackTrace();
+                        Toast.makeText(OBDActivity.this, "Unable to start recording", Toast.LENGTH_LONG).show();
+
+                    }
+                }else{
+
+                    mService.stopOBDRecording();
+                    updateThread.RUN = false;
+                    b.setText("Connect");
+                }
             }
+
+
         });
     }
 
@@ -84,6 +115,7 @@ public class OBDActivity extends Activity {
 
 
     public void selectBTDevice(){
+        DEV_NAME = "";
         ArrayList deviceStrs = new ArrayList();
         final ArrayList<String> devices = new ArrayList();
 
@@ -103,8 +135,8 @@ public class OBDActivity extends Activity {
             }
 
             // show a list of paired devices to connect with
-            final AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
-            ArrayAdapter adapter = new ArrayAdapter(this, android.R.layout.select_dialog_singlechoice,
+            final AlertDialog.Builder alertDialog = new AlertDialog.Builder(OBDActivity.this);
+            ArrayAdapter adapter = new ArrayAdapter(OBDActivity.this, android.R.layout.select_dialog_singlechoice,
                     deviceStrs.toArray(new String[deviceStrs.size()]));
             alertDialog.setSingleChoiceItems(adapter, -1, new DialogInterface.OnClickListener() {
                 @Override
@@ -113,7 +145,10 @@ public class OBDActivity extends Activity {
                     int position = ((AlertDialog) dialog).getListView().getCheckedItemPosition();
                     String deviceAddress = devices.get(position);
 
+                    DEV_NAME = deviceAddress;
                     Log.d(OBDActivity.this, this.getClass().getName(), "BT="+deviceAddress);
+
+
 
                 }
             });
@@ -126,7 +161,53 @@ public class OBDActivity extends Activity {
 
 
 
+    class UpdateParametersThread implements Runnable{
+        public boolean RUN = false;
 
+        @Override
+        public void run() {
+            RUN = true;
+
+            while(RUN) {
+
+            try {
+                Thread.sleep(2000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+                    updateActParameters();
+            }
+        }
+
+
+    }
+
+
+
+    public void updateActParameters() {
+        try {
+            HashMap<String, String> pm = mService.currentValues();
+
+            TextView rpm = (TextView)findViewById(R.id.textViewRpm);
+            rpm.setText(pm.get(CarManager.RPM));
+
+            TextView speed = (TextView)findViewById(R.id.textViewSpeed);
+            rpm.setText(pm.get(CarManager.SPEED));
+
+            TextView fuelFlow = (TextView)findViewById(R.id.textViewFlow);
+            rpm.setText(pm.get(CarManager.FUEL));
+
+
+            TextView odometer = (TextView)findViewById(R.id.textViewODO);
+            rpm.setText(pm.get(CarManager.ODOMETER));
+
+
+        } catch (NoValueException e) {
+            e.printStackTrace();
+        }
+
+    }
 }
 
 
