@@ -4,5 +4,11 @@
     <string name="app_name">CFC_Tracker_TestTest</string>
     <string name="testing_started">Location testing started</string>
 
+    <!-- Added from activity OBD -->
+    <string name="connectButton">Connect</string>
+    <string name="DisconnectButton">Disconnect</string>
+    <string name="modeSwitch">Mode</string>
+
+
 
 </resources>

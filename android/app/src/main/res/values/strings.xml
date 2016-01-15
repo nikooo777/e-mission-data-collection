@@ -70,4 +70,39 @@
     <string name="login">Login to google</string>
     <string name="exportDB">Export DB</string>
     <string name="title_activity_odb">ODBActivity</string>
+
+
+
+    <!-- Added from activity OBD -->
+    <string name="connectButton">Connect</string>
+    <string name="DisconnectButton">Disconnect</string>
+    <string name="modeSwitch">Mode</string>
+    <string name="Rpm">Rpm</string>
+    <string name="Speed">Speed</string>
+    <string name="ODO">ODO</string>
+    <string name="fuelFlow">Fuel flow</string>
+    <string name="fuelEco">Fuel economy</string>
+    <string name="rpm">rpm</string>
+    <string name="speed">speed</string>
+    <string name="fuelEco1">fuelEco</string>
+    <string name="fuelFlow1">fuelFlow</string>
+    <string name="nullKm">0 Km</string>
+    <string name="nullL">0 L</string>
+    <string name="FuelCounter">Fuel consumed</string>
+    <string name="BeginQuestion">What is your car running on?</string>
+    <string name="EndQuestion">What kind of trip have you done?</string>
+    <string name="cannotConnect">Unable to connect, try again</string>
+    <string name="blueChose">Choose Bluetooth device</string>
+
+    <string-array
+        name="string_array_trips">
+        <item>School</item>
+        <item>City</item>
+        <item>Groceries</item>
+        <item>Highway</item>
+        <item>Gas station</item>
+        <item>trip A</item>
+        <item>trip B</item>
+
+    </string-array>
 </resources>
