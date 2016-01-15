@@ -128,6 +128,11 @@ public class CarManager {
         float tankLevel = 0.f;
         float finalTankLevel = 0.f;
 
+        long previousTime = System.currentTimeMillis();
+        long previousSpeed = speedCommand.getMetricSpeed();
+        float previousFlow = fuelEconomy.getFlow();
+
+
         if (!connected) throw new ConnectionException();
         HashMap<String, String> query = new HashMap<String, String>();
         query.put(FUEL_TYPE, fuelType);
@@ -170,9 +175,17 @@ public class CarManager {
             }
 
 
-            long previousSpeed = speedCommand.getMetricSpeed();
+
+
+
             float kmODO = 0.f;
             float fuelCons = 0.f;
+
+            long currentTime = System.currentTimeMillis();
+            long deltaTime = currentTime - previousTime;
+            previousTime = currentTime;
+
+
             if (fineMode) {
                 kmODO += ((float) speedCommand.getMetricSpeed()) * ((float) deltaTime) / 1000 / 3600;
                 odometer = "" + String.format("%.3f", kmODO) + " Km";
