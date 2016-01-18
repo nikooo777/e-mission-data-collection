@@ -6,6 +6,7 @@ import obd.commands.ObdCommand;
 import obd.commands.control.VinCommand;
 import obd.commands.engine.MassAirFlowCommand;
 import obd.commands.fuel.ConsumptionRateCommand;
+import obd.commands.pressure.IntakeManifoldPressureCommand;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -58,10 +59,28 @@ public class CheckObdCommands extends ObdCommand {
                 Log.d("CHECK", "MAF not supported");
             }
 
+
+
         }catch (Exception e){
             supportMAF=false;
             Log.d("CHECK", "MAF not supported");
         }
+
+
+        try{
+
+        final IntakeManifoldPressureCommand mapCommand= new IntakeManifoldPressureCommand();
+
+        mapCommand.run(in, out);
+
+        System.err.println("MAP="+mapCommand.getFormattedResult());
+        }
+
+    catch (Exception e){
+
+        Log.d("CHECK", "MAP not supported");
+    }
+
 
         try {
             final ConsumptionRateCommand fuelrate= new ConsumptionRateCommand();

@@ -87,31 +87,31 @@ public class OBDActivity extends Activity {
 
             if(fuelType.length() == 0){
                 fuelType = fuelDialogType(OBDActivity.this);
-                mService.getCarManager().setFuelType(fuelType);
+              //  mService.getCarManager().setFuelType(fuelType);
+            }else {
+
+
+                TextView ftv = (TextView) findViewById(R.id.textViewFuelType);
+                ftv.setTextColor(Color.GREEN);
+                if (fuelType.compareTo("Gasoline") == 0) ftv.setTextColor(Color.YELLOW);
+                ftv.setText(fuelType);
+
+
+                mService.startOBDRecording();
+
+
+                updateThread = new UpdateParametersThread();
+                new Thread(updateThread).start();
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Button b = (Button) findViewById(R.id.button);
+                        b.setText("Disconnect");
+                    }
+                });
+
+
             }
-
-            TextView ftv = (TextView) findViewById(R.id.textViewFuelType);
-            ftv.setTextColor(Color.GREEN);
-            if(fuelType.compareTo("Gasoline") == 0) ftv.setTextColor(Color.YELLOW);
-            ftv.setText(fuelType);
-
-
-            mService.startOBDRecording();
-
-
-            updateThread = new UpdateParametersThread();
-            new Thread(updateThread).start();
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                   Button b = (Button)findViewById(R.id.button);
-                    b.setText("Disconnect");
-                }
-            });
-
-
-
-
         } catch (ConnectionException e) {
             e.printStackTrace();
             Toast.makeText(OBDActivity.this, "Unable to start recording", Toast.LENGTH_LONG).show();
@@ -284,6 +284,35 @@ public class OBDActivity extends Activity {
                             public void onClick(DialogInterface dialog, int which) {
                                 int sel = ((AlertDialog) dialog).getListView().getCheckedItemPosition();
                                 if (sel != 0) { fuelType = "Diesel"; }
+
+
+
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        mService.getCarManager().setFuelType(fuelType);
+                                        TextView ftv = (TextView) findViewById(R.id.textViewFuelType);
+                                        ftv.setTextColor(Color.GREEN);
+                                        if (fuelType.compareTo("Gasoline") == 0) ftv.setTextColor(Color.YELLOW);
+                                        ftv.setText(fuelType);
+
+
+                                        mService.startOBDRecording();
+
+
+                                        updateThread = new UpdateParametersThread();
+                                        new Thread(updateThread).start();
+                                        runOnUiThread(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                Button b = (Button) findViewById(R.id.button);
+                                                b.setText("Disconnect");
+                                            }
+                                        });
+                                    }
+                                });
+
+
                             }
                         });
 

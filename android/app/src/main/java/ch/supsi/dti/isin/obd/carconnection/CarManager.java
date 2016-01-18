@@ -75,6 +75,9 @@ public class CarManager {
 
 
     public void setFuelType(String ft){
+
+        fuelEconomy = new FuelEconomyObdCommand(fuelType, commands);
+
         fuelType = ft;
     }
 
@@ -121,20 +124,28 @@ public class CarManager {
                 commands = checked;
                 Log.d(this.getClass().getName(), "commands supported: " + checked);
                 //determine fuel type
-                //retrieveFuelType();
+
                 /*FindFuelTypeCommand fuelTypeObdCommand = new FindFuelTypeCommand();
                 fuelTypeObdCommand.run(sock.getInputStream(), sock.getOutputStream());
                 String type = fuelTypeObdCommand.getFormattedResult();
                 fuelType = type;
 */
 
-                 fuelEconomy = new FuelEconomyObdCommand(fuelType, commands);
+
+
+
                  throttlePositionObdCommand = new ThrottlePositionCommand();
 
 
                 connected = true;
 
                 fuelType = checkFuelType();
+
+
+                if(fuelType != null){
+                    fuelEconomy = new FuelEconomyObdCommand(fuelType, commands);
+                }
+
 
            } catch (Exception e) {
                 Log.d("Exception", "Bluetooth IO Exception c");

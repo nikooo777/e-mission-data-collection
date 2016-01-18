@@ -33,7 +33,7 @@ public class FuelEconomyObdCommand extends ObdCommand {
     private final float GASOLINE_DENSITY2=739.329063f;
     String TAG= "OBD Response";
     protected float flow=0.f;
-    String fuelType;
+    public static String fuelType ="Gasoline";
     String commands;
     public float getFlow() {
         return flow;
@@ -43,9 +43,9 @@ public class FuelEconomyObdCommand extends ObdCommand {
         this.flow = flow;
     }
 
-    public FuelEconomyObdCommand(String fuelType, String commands) {
+    public FuelEconomyObdCommand(String fuelType_ext, String commands) {
         super("");
-        this.fuelType=fuelType;
+        fuelType=fuelType_ext;
         this.commands=commands;
     }
 
@@ -62,13 +62,19 @@ public class FuelEconomyObdCommand extends ObdCommand {
         /*final FuelConsumptionRateObdCommand2 fuelConsumptionCommand = new FuelConsumptionRateObdCommand2();
         fuelConsumptionCommand.run(in, out);*/
         String[] parts=commands.split("\n");
-        Boolean supMaf=Boolean.parseBoolean(parts[0]);
-        Boolean supRate=Boolean.parseBoolean(parts[1]);
+        boolean supMaf=Boolean.parseBoolean(parts[0]);
+        boolean supRate=Boolean.parseBoolean(parts[1]);
+
         float MAF=-1.0f;
         // get metric speed
         final SpeedCommand speedCommand = new SpeedCommand();
         speedCommand.run(in, out);
         float speed=speedCommand.getMetricSpeed();
+
+        fuelType="Gasoline";
+
+       System.err.println("STATE="+supMaf+" "+fuelType);
+
 
         //TODO: FIX MAF
 
@@ -109,8 +115,10 @@ public class FuelEconomyObdCommand extends ObdCommand {
                 float MPG= MPG_KML/kml;
 
 
-            }
-        }else if (!supMaf && fuelType.equals("Gasoline")){
+            }}
+       else if (!supMaf && fuelType.equals("Gasoline"))
+
+       {
             Log.d(TAG, "Alternative MAF + Gasoline:");
             //get alternative MAF
             final RPMCommand engineRpmCommand = new RPMCommand();
@@ -131,6 +139,7 @@ public class FuelEconomyObdCommand extends ObdCommand {
             // get l/100km
 
             float fuelFlow=(float)(MAF*SECONDS_HOUR)/(GASOLINE_DENSITY2*AIR_FUEL_RATIO);
+            System.err.println(fuelFlow);
 
             setFlow(fuelFlow);
             kml=100/(speed/fuelFlow);
