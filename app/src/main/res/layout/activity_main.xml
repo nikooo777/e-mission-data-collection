@@ -1,0 +1,252 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    tools:context="ch.supsi.dti.isin.obd.OBDActivity"
+    android:clickable="false">
+
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="@string/rpm"
+        android:id="@+id/textViewRpm"
+        android:layout_above="@+id/speedLabel"
+        android:layout_toEndOf="@+id/button" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="@string/speed"
+        android:id="@+id/textViewSpeed"
+        android:layout_above="@+id/economyLabel"
+        android:layout_toRightOf="@+id/button"
+        android:layout_toEndOf="@+id/button" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="@string/fuelEco1"
+        android:id="@+id/textViewFuelEco"
+        android:layout_alignBottom="@+id/economyLabel"
+        android:layout_alignLeft="@+id/textViewFlow"
+        android:layout_alignStart="@+id/textViewFlow" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="@string/fuelFlow1"
+        android:id="@+id/textViewFlow"
+        android:layout_alignBottom="@+id/flowLabel"
+        android:layout_marginTop="25dp"
+        android:layout_alignStart="@+id/textViewSpeed" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="@string/Rpm"
+        android:id="@+id/rpmLabel"
+        android:layout_below="@+id/switchMode"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_alignRight="@+id/speedLabel"
+        android:layout_alignEnd="@+id/speedLabel" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="@string/Speed"
+        android:id="@+id/speedLabel"
+        android:layout_below="@+id/rpmLabel" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="@string/fuelEco"
+        android:id="@+id/economyLabel"
+        android:layout_below="@+id/speedLabel"
+        android:layout_toLeftOf="@+id/textViewFuelType"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="@string/fuelFlow"
+        android:id="@+id/flowLabel"
+
+        android:layout_below="@+id/economyLabel" />
+
+    <Button
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/connectButton"
+        android:id="@+id/button"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="Fuel Type"
+        android:id="@+id/textViewFuelType"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="@string/ODO"
+        android:id="@+id/labelODO"
+        android:layout_below="@+id/flowLabel" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="@string/nullKm"
+        android:id="@+id/textViewODO"
+        android:layout_above="@+id/labelConsumed"
+        android:layout_toRightOf="@+id/button"
+        android:layout_toEndOf="@+id/button" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="@string/FuelCounter"
+        android:id="@+id/labelConsumed"
+        android:layout_below="@+id/labelODO" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="@string/nullL"
+        android:id="@+id/textViewConsumed"
+        android:layout_alignBottom="@+id/labelConsumed"
+        android:layout_alignLeft="@+id/textViewODO"
+        android:layout_alignStart="@+id/textViewODO" />
+
+    <Switch
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/modeSwitch"
+        android:id="@+id/switchMode"
+        android:checked="true"
+        android:textOn="fine"
+        android:textOff="coarse"
+        android:layout_below="@+id/button"
+        android:layout_toRightOf="@+id/flowLabel"
+        android:showText="true"
+        android:layout_alignRight="@+id/textViewConsumed"
+        android:layout_alignEnd="@+id/textViewConsumed" />
+
+    <View
+        android:id="@+id/SplitLine_hor1"
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:background="#c0c0c0"
+        android:layout_centerVertical="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="@string/map_support"
+        android:id="@+id/textView"
+        android:layout_below="@+id/SplitLine_hor1"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginTop="16dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="MAF support"
+        android:id="@+id/textView2"
+        android:layout_below="@+id/textView"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="@string/fuel_level_support"
+        android:id="@+id/textView3"
+        android:layout_below="@+id/textView2"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="@string/fuel_rate_support"
+        android:id="@+id/textView4"
+        android:layout_below="@+id/textView3"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
+
+    <CheckBox
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/MAPCheckBox"
+        android:layout_alignBottom="@+id/textView"
+        android:layout_alignLeft="@+id/textViewConsumed"
+        android:layout_alignStart="@+id/textViewConsumed"
+        android:checked="false"
+        android:enabled="false" />
+
+    <CheckBox
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/MAFCheckBox"
+        android:checked="false"
+        android:enabled="false"
+        android:layout_above="@+id/textView3"
+        android:layout_alignLeft="@+id/MAPCheckBox"
+        android:layout_alignStart="@+id/MAPCheckBox" />
+
+    <CheckBox
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/FuelLevelCheckBox"
+        android:checked="false"
+        android:enabled="false"
+        android:layout_above="@+id/textView4"
+        android:layout_alignLeft="@+id/MAFCheckBox"
+        android:layout_alignStart="@+id/MAFCheckBox" />
+
+    <CheckBox
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/FuelRateSupport"
+        android:checked="false"
+        android:enabled="false"
+        android:layout_alignBottom="@+id/textView4"
+        android:layout_alignLeft="@+id/FuelLevelCheckBox"
+        android:layout_alignStart="@+id/FuelLevelCheckBox"
+        android:clickable="false" />
+
+</RelativeLayout>
