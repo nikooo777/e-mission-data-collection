@@ -94,6 +94,10 @@
     <string name="map_support">MAP support</string>
     <string name="fuel_level_support">Fuel Level Support</string>
     <string name="fuel_rate_support">Fuel Rate support</string>
+    <string name="maf_support">MAF support</string>
+    <string name="fuel_type">Fuel Type</string>
+    <string name="na">NA</string>
+    <string name="_0_m_ss">0 m/ss</string>
 
     <string-array name="string_array_trips">
         <item>School</item>

@@ -2,8 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/E-MissionConsumes.iml" filepath="$PROJECT_DIR$/E-MissionConsumes.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/e-mission-consumes.iml" filepath="$PROJECT_DIR$/e-mission-consumes.iml" />
     </modules>
   </component>
 </project>

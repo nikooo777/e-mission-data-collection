@@ -4,7 +4,6 @@ import android.app.Service;
 import android.content.Intent;
 import android.os.Binder;
 import android.os.IBinder;
-import android.util.Log;
 import android.widget.Toast;
 
 import java.util.HashMap;
@@ -16,7 +15,7 @@ public class OBDMainService extends Service {
     private CarManager carManager = null;
 
     public OBDMainService() {
-        Log.d("SHIT", "nothing works");
+
     }
 
     public CarManager getCarManager() {
