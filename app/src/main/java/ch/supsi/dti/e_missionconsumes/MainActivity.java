@@ -17,6 +17,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private SensorManager senSensorManager;
     private Sensor senAccelerometer;
     private float lastUpdate = -1;
+    private TextView accelerationLabel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -25,6 +26,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         Log.d(this.getClass().getName(), "OBD Start");
         Intent intent = new Intent(this, OBDActivity.class);
         startActivity(intent);
+        accelerationLabel = (TextView) findViewById(R.id.textViewAcceleration);
         this.senSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         this.senAccelerometer = this.senSensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION);
         this.senSensorManager.registerListener(this, this.senAccelerometer, SensorManager.SENSOR_DELAY_NORMAL);
@@ -41,11 +43,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             acceleration[0] = event.values[0];
             acceleration[1] = event.values[1];
             acceleration[2] = event.values[2];
-            final TextView accelerationLabel = (TextView) findViewById(R.id.textViewAcceleration);
-            final String ac = Math.sqrt(Math.pow(acceleration[0], 2) + Math.pow(acceleration[1], 2) + Math.pow(acceleration[2], 2)) + "";
-            Toast.makeText(getApplicationContext(), "ac: " + ac + " m/ss", Toast.LENGTH_LONG).show();
-            assert accelerationLabel != null;
-            accelerationLabel.setText(ac + " m/ss");  //it doesn't work for some reasons...
+
+            final String ac = Math.sqrt(Math.pow(acceleration[0], 2) + Math.pow(acceleration[1], 2) + Math.pow(acceleration[2], 2)) + " m/ss";
+            Toast.makeText(getApplicationContext(), "ac: "+ ac, Toast.LENGTH_LONG).show();
+            accelerationLabel.setText(ac);  //it doesn't work for some reasons...
             this.lastUpdate = curTime;
             //    }
         }
