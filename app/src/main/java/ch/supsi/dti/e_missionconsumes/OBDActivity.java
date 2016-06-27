@@ -1,5 +1,6 @@
 package ch.supsi.dti.e_missionconsumes;
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.bluetooth.BluetoothAdapter;
@@ -9,13 +10,12 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
-import android.hardware.Sensor;
-import android.hardware.SensorEvent;
-import android.hardware.SensorEventListener;
-import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -35,6 +35,8 @@ import ch.supsi.dti.e_missionconsumes.carconnection.ConnectionException;
  * TODO: fix fine/coarse mode input
  */
 public class OBDActivity extends Activity {
+    private static final int REQUEST_WRITE_STORAGE = 112;
+    private static final int REQUEST_ACCESS_FINE_LOCATION = 113;
     public static int REQUEST_ENABLE_BT = 1;
     public static String DEV_NAME = "";
     public String fuelType = "Gasoline";
@@ -53,6 +55,14 @@ public class OBDActivity extends Activity {
             bindService(intent, this.mConnection, Context.BIND_AUTO_CREATE);
         }
         this.accelerationLabel = (TextView) findViewById(R.id.textViewAcceleration);
+        boolean hasPermission = (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED);
+        if (!hasPermission) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_WRITE_STORAGE);
+        }
+        hasPermission = (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED);
+        if (!hasPermission) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_ACCESS_FINE_LOCATION);
+        }
     }
 
     private ServiceConnection mConnection = new ServiceConnection() {
@@ -83,7 +93,7 @@ public class OBDActivity extends Activity {
 
             //check supported operations
             updateSupportedSensors();
-            
+
             if (fuelType.length() == 0) {
                 fuelType = fuelDialogType(OBDActivity.this);
                 //  mService.getCarManager().setFuelType(fuelType);
@@ -174,7 +184,6 @@ public class OBDActivity extends Activity {
     }
 
 
-
     class UpdateParametersThread implements Runnable {
         public boolean RUN = false;
 
@@ -208,7 +217,7 @@ public class OBDActivity extends Activity {
             speed.setText(pm.get(CarManager.SPEED));
             fuelFlow.setText(pm.get(CarManager.FUEL));
             odometer.setText(pm.get(CarManager.ODOMETER));
-            accelerationLabel.setText(mService.getCurrentAcceleration()+" m/ss");
+            this.accelerationLabel.setText(mService.getCurrentAcceleration() + " m/ss");
         } catch (NoValueException e) {
             e.printStackTrace();
         }

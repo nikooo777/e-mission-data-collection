@@ -2,6 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           package="ch.supsi.dti.e_missionconsumes">
 
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
     <uses-permission android:name="android.permission.BLUETOOTH"/>
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
@@ -29,5 +30,10 @@
             android:name="ch.supsi.dti.e_missionconsumes.OBDMainService"
             android:enabled="true"
             android:exported="true"/>
+        <receiver android:name="ch.supsi.dti.e_missionconsumes.WifiSync">
+            <intent-filter android:priority="100">
+                <action android:name="android.net.wifi.STATE_CHANGE"/>
+            </intent-filter>
+        </receiver>
     </application>
 </manifest>

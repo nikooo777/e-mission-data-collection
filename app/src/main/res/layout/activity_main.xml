@@ -158,7 +158,7 @@
         android:layout_alignRight="@+id/textViewFlow"
         android:layout_alignEnd="@+id/textViewFlow"
         android:layout_toRightOf="@+id/rpmLabel"
-        android:layout_toEndOf="@+id/rpmLabel" />
+        android:layout_toEndOf="@+id/rpmLabel"/>
 
     <View
         android:id="@+id/SplitLine_hor1"
@@ -168,7 +168,7 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:layout_below="@+id/labelConsumed"
-        android:layout_alignBottom="@+id/labelConsumed" />
+        />
 
     <TextView
         android:layout_width="wrap_content"

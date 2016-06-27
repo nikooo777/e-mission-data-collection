@@ -16,7 +16,7 @@ import java.util.HashMap;
 import ch.supsi.dti.e_missionconsumes.carconnection.CarManager;
 import ch.supsi.dti.e_missionconsumes.carconnection.ConnectionException;
 
-public class OBDMainService extends Service implements SensorEventListener{
+public class OBDMainService extends Service implements SensorEventListener {
     private CarManager carManager = null;
 
     public OBDMainService() {
@@ -33,9 +33,9 @@ public class OBDMainService extends Service implements SensorEventListener{
             this.carManager = new CarManager();
         }
 
-            this.senSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
-            this.senAccelerometer = this.senSensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION);
-            this.senSensorManager.registerListener(this, this.senAccelerometer, SensorManager.SENSOR_DELAY_NORMAL);
+        this.senSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+        this.senAccelerometer = this.senSensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION);
+        this.senSensorManager.registerListener(this, this.senAccelerometer, SensorManager.SENSOR_DELAY_NORMAL);
     }
 
     private final IBinder mBinder = new LocalBinder();
@@ -77,7 +77,7 @@ public class OBDMainService extends Service implements SensorEventListener{
 
     private SensorManager senSensorManager;
     private Sensor senAccelerometer;
-    private float lastUpdate=-1f;
+    private float lastUpdate = -1f;
     private double currentAcceleration = -1;
 
     @Override
@@ -90,25 +90,13 @@ public class OBDMainService extends Service implements SensorEventListener{
             acceleration[0] = event.values[0];
             acceleration[1] = event.values[1];
             acceleration[2] = event.values[2];
-            currentAcceleration = Math.sqrt(Math.pow(acceleration[0], 2) + Math.pow(acceleration[1], 2) + Math.pow(acceleration[2], 2));
+            this.currentAcceleration = Math.sqrt(Math.pow(acceleration[0], 2) + Math.pow(acceleration[1], 2) + Math.pow(acceleration[2], 2));
             this.lastUpdate = curTime;
-
-            //final String ac = Math.sqrt(Math.pow(acceleration[0], 2) + Math.pow(acceleration[1], 2) + Math.pow(acceleration[2], 2)) + " m/ss";
-            //Toast.makeText(getApplicationContext(), "ac: "+ ac, Toast.LENGTH_LONG).show();
-            // accelerationLabel.setText(ac);  //it doesn't work for some reasons...
-            /*runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    accelerationLabel.setText(ac);
-                }
-            });*/
-            //    }
         }
     }
 
-    public double getCurrentAcceleration()
-    {
-        return currentAcceleration;
+    public double getCurrentAcceleration() {
+        return this.currentAcceleration;
     }
 
     @Override
