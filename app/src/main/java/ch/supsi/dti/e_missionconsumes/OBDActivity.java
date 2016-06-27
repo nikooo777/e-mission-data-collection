@@ -10,6 +10,10 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.graphics.Color;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
@@ -37,6 +41,7 @@ public class OBDActivity extends Activity {
     public UpdateParametersThread updateThread = null;
     static OBDMainService mService;
     static boolean mBound = false;
+    private TextView accelerationLabel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,6 +52,7 @@ public class OBDActivity extends Activity {
             Intent intent = new Intent(this, OBDMainService.class);
             bindService(intent, this.mConnection, Context.BIND_AUTO_CREATE);
         }
+        this.accelerationLabel = (TextView) findViewById(R.id.textViewAcceleration);
     }
 
     private ServiceConnection mConnection = new ServiceConnection() {
@@ -167,6 +173,8 @@ public class OBDActivity extends Activity {
         }
     }
 
+
+
     class UpdateParametersThread implements Runnable {
         public boolean RUN = false;
 
@@ -193,13 +201,14 @@ public class OBDActivity extends Activity {
         try {
             HashMap<String, String> pm = mService.currentValues();
             TextView rpm = (TextView) findViewById(R.id.textViewRpm);
-            rpm.setText(pm.get(CarManager.RPM));
             TextView speed = (TextView) findViewById(R.id.textViewSpeed);
-            speed.setText(pm.get(CarManager.SPEED));
             TextView fuelFlow = (TextView) findViewById(R.id.textViewFlow);
-            fuelFlow.setText(pm.get(CarManager.FUEL));
             TextView odometer = (TextView) findViewById(R.id.textViewODO);
+            rpm.setText(pm.get(CarManager.RPM));
+            speed.setText(pm.get(CarManager.SPEED));
+            fuelFlow.setText(pm.get(CarManager.FUEL));
             odometer.setText(pm.get(CarManager.ODOMETER));
+            accelerationLabel.setText(mService.getCurrentAcceleration()+" m/ss");
         } catch (NoValueException e) {
             e.printStackTrace();
         }

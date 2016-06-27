@@ -153,19 +153,22 @@
         android:textOn="fine"
         android:textOff="coarse"
         android:layout_below="@+id/button"
-        android:layout_toRightOf="@+id/flowLabel"
         android:showText="true"
-        android:layout_alignRight="@+id/textViewConsumed"
-        android:layout_alignEnd="@+id/textViewConsumed"/>
+        android:maxLines="1"
+        android:layout_alignRight="@+id/textViewFlow"
+        android:layout_alignEnd="@+id/textViewFlow"
+        android:layout_toRightOf="@+id/rpmLabel"
+        android:layout_toEndOf="@+id/rpmLabel" />
 
     <View
         android:id="@+id/SplitLine_hor1"
         android:layout_width="match_parent"
         android:layout_height="2dp"
         android:background="#c0c0c0"
-        android:layout_centerVertical="true"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"/>
+        android:layout_alignParentStart="true"
+        android:layout_below="@+id/labelConsumed"
+        android:layout_alignBottom="@+id/labelConsumed" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -331,7 +334,10 @@
         android:layout_alignLeft="@+id/textViewFuelLevel"
         android:layout_alignStart="@+id/textViewFuelLevel"/><![CDATA[
 
+
+
     "/>
+
 
 ]]>
 </RelativeLayout>
