@@ -27,14 +27,27 @@ public class WifiSync extends BroadcastReceiver {
 
         if (info != null && info.isConnected()) {
             File d = new File(Constants.FILE_DEF_DIR);
-            for (String f : d.list(new FilenameFilter() {
+            String[] list = d.list(new FilenameFilter() {
                 @Override
                 public boolean accept(File dir, String filename) {
                     return filename.endsWith("_sensor.txt");
                 }
-            })) {
+            });
+            if (list == null) {
+                Log.i(this.getClass().getName(), "No files to upload");
+                return;
+            }
+            for (String f : list) {
                 //inner-for
-                uploadFile(d.getPath() + f);
+                final String fullPath = d.getPath() + "/" + f;
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        uploadFile(fullPath);
+                    }
+                }).start();
+
+                Log.i(this.getClass().getName(), "uploading: " + fullPath);
             }
         }
     }
@@ -49,7 +62,7 @@ public class WifiSync extends BroadcastReceiver {
 
         HttpURLConnection connection;
         DataOutputStream dataOutputStream;
-        String lineEnd = System.lineSeparator();//"\r\n";
+        String lineEnd = "\r\n";
         String twoHyphens = "--";
         String boundary = "*****";
 
@@ -62,15 +75,16 @@ public class WifiSync extends BroadcastReceiver {
 
         String[] parts = selectedFilePath.split("/");
         final String fileName = parts[parts.length - 1];
-
         if (!selectedFile.isFile()) {
-            Log.d(this.getClass().getName(), "File to upload is NOT a file");
+            Log.i(this.getClass().getName(), "File to upload is NOT a file");
+            Log.e(this.getClass().getName(), selectedFile.getPath());
             return 0;
         }
         else {
             try {
+                Log.i(this.getClass().getName(), "File is upload-able");
                 FileInputStream fileInputStream = new FileInputStream(selectedFile);
-                URL url = new URL("https://emission.storni.info/emissionupload.php");
+                URL url = new URL("http://emission.storni.info/emissionupload.php");
                 connection = (HttpURLConnection) url.openConnection();
                 connection.setDoInput(true);
                 connection.setDoOutput(true);
@@ -120,7 +134,7 @@ public class WifiSync extends BroadcastReceiver {
 
                 //response code of 200 indicates the server status OK
                 if (serverResponseCode == 200) {
-                    Log.d(this.getClass().getName(), "Upload completed");
+                    Log.i(this.getClass().getName(), "Upload completed");
                 }
 
                 //closing the input and output streams
@@ -131,14 +145,14 @@ public class WifiSync extends BroadcastReceiver {
 
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
-                Log.d(this.getClass().getName(), "File Not Found");
+                Log.i(this.getClass().getName(), "File Not Found");
             } catch (MalformedURLException e) {
                 e.printStackTrace();
-                Log.d(this.getClass().getName(), "URL error!");
+                Log.i(this.getClass().getName(), "URL error!");
 
             } catch (IOException e) {
                 e.printStackTrace();
-                Log.d(this.getClass().getName(), "Cannot Read/Write File!");
+                Log.i(this.getClass().getName(), "Cannot Read/Write File!");
             }
             return serverResponseCode;
         }

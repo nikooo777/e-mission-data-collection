@@ -54,15 +54,15 @@ public class CheckObdCommands extends ObdCommand {
             this.MAF = (float) mafCommand.getMAF();
             if (this.MAF != -1.0f) {
                 this.supportMAF = true;
-                Log.d("CHECK", "MAF supported");
+                Log.i("CHECK", "MAF supported");
             }
             else {
                 this.supportMAF = false;
-                Log.d("CHECK", "MAF not supported");
+                Log.i("CHECK", "MAF not supported");
             }
         } catch (Exception e) {
             this.supportMAF = false;
-            Log.d("CHECK", "MAF not supported");
+            Log.i("CHECK", "MAF not supported");
         }
         try {
             final IntakeManifoldPressureCommand mapCommand = new IntakeManifoldPressureCommand();
@@ -70,13 +70,13 @@ public class CheckObdCommands extends ObdCommand {
             System.err.println("MAP=" + mapCommand.getFormattedResult());
             this.supportMAP = mapCommand.getMetricUnit() != 0;
             if (this.supportMAP) {
-                Log.d("CHECK", "MAP supported");
+                Log.i("CHECK", "MAP supported");
             }
             else {
-                Log.d("CHECK", "MAP not supported");
+                Log.i("CHECK", "MAP not supported");
             }
         } catch (Exception e) {
-            Log.d("CHECK", "MAP not supported");
+            Log.i("CHECK", "MAP not supported");
             this.supportMAP = false;
         }
         try {
@@ -85,43 +85,43 @@ public class CheckObdCommands extends ObdCommand {
             this.fuelRate = (float) fuelrate.getLitersPerHour();
             if (this.fuelRate != -1.0f) {
                 this.supportFuelRate = true;
-                Log.d("CHECK", "Fuel rate supported");
+                Log.i("CHECK", "Fuel rate supported");
             }
             else {
                 this.supportFuelRate = false;
-                Log.d("CHECK", "Fuel rate not supported");
+                Log.i("CHECK", "Fuel rate not supported");
             }
         } catch (Exception e) {
             this.supportFuelRate = false;
-            Log.d("CHECK", "Fuel rate  not supported");
+            Log.i("CHECK", "Fuel rate  not supported");
         }
         try {
             final VinCommand vinCommand = new VinCommand();
             vinCommand.run(in, out);
             this.VIN = vinCommand.getFormattedResult();
             if (!this.VIN.equals("")) {
-                Log.d("CHECK", "VIN : " + this.VIN);
+                Log.i("CHECK", "VIN : " + this.VIN);
             }
             else {
                 this.VIN = getEcuName(in, out);
-                Log.d("CHECK", "VIN unknown");
+                Log.i("CHECK", "VIN unknown");
             }
         } catch (Exception e) {
             this.VIN = getEcuName(in, out);
-            Log.d("CHECK", "VIN unknown");
+            Log.i("CHECK", "VIN unknown");
         }
         try {
             final FuelLevelCommand flc = new FuelLevelCommand();
             flc.run(in, out);
             this.supportFuelLevel = Float.compare(flc.getFuelLevel(), 0f) != 0;
             if (this.supportFuelLevel) {
-                Log.d("CHECK", "Fuel Level supported");
+                Log.i("CHECK", "Fuel Level supported");
             }
             else {
-                Log.d("CHECK", "Fuel Level not supported");
+                Log.i("CHECK", "Fuel Level not supported");
             }
         } catch (Exception ex) {
-            Log.d("CHECK", "Fuel Level not supported");
+            Log.i("CHECK", "Fuel Level not supported");
         }
     }
 
@@ -132,7 +132,7 @@ public class CheckObdCommands extends ObdCommand {
             nameCommand.run(in, out);
             name = nameCommand.getFormattedResult();
         } catch (Exception e) {
-            Log.d("CHECK", "ECU unknown");
+            Log.i("CHECK", "ECU unknown");
             return "NO NAME";
         }
         return name;

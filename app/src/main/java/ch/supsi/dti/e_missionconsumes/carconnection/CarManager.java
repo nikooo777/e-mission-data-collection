@@ -77,7 +77,7 @@ public class CarManager {
     public void connectToAdapter(String _devAddress) throws ConnectionException {
         this.devAddress = _devAddress;
         this.kmODO = 0.f;
-        Log.d(getClass().getName(), "entering connectToAdapter");
+        Log.i(getClass().getName(), "entering connectToAdapter");
         BluetoothAdapter btAdapter = BluetoothAdapter.getDefaultAdapter();
         BluetoothDevice device = btAdapter.getRemoteDevice(this.devAddress);
         UUID uuid = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
@@ -98,7 +98,7 @@ public class CarManager {
             this.FuelLevelSupport = check.getSupportFuelLevel();
             String checked = check.toString();
             this.commands = checked;
-            Log.d(this.getClass().getName(), "commands supported: " + checked);
+            Log.i(this.getClass().getName(), "commands supported: " + checked);
             //determine fuel type
                 /*FindFuelTypeCommand fuelTypeObdCommand = new FindFuelTypeCommand();
                 fuelTypeObdCommand.run(sock.getInputStream(), sock.getOutputStream());
@@ -112,7 +112,7 @@ public class CarManager {
                 this.fuelEconomy = new FuelEconomyObdCommand(this.fuelType, this.commands);
             }
         } catch (Exception e) {
-            Log.d("Exception", "Bluetooth IO Exception c");
+            Log.i("Exception", "Bluetooth IO Exception c");
             throw new ConnectionException();
         }
     }
@@ -181,7 +181,7 @@ public class CarManager {
             long currentTime = System.currentTimeMillis();
             long deltaTime = currentTime - this.previousTime;
             this.previousTime = currentTime;
-            Log.d(this.getClass().getName(), deltaTime + " " + currentTime + " " + this.previousTime);
+            Log.i(this.getClass().getName(), deltaTime + " " + currentTime + " " + this.previousTime);
             this.fineMode = false;
             if (this.fineMode) {
                 this.kmODO += ((float) this.speedCommand.getMetricSpeed()) * ((float) deltaTime) / 1000 / 3600;
@@ -230,15 +230,15 @@ public class CarManager {
                 return "Diesel";
             }
         } catch (IOException e) {
-            Log.d(this.getClass().getName(), "Fuel type: " + "unknown, IOException occurred");
+            Log.i(this.getClass().getName(), "Fuel type: " + "unknown, IOException occurred");
         } catch (NoDataException e) {
-            Log.d(this.getClass().getName(), "Fuel type: " + "unknown, NoDataException occurred");
+            Log.i(this.getClass().getName(), "Fuel type: " + "unknown, NoDataException occurred");
         } catch (InterruptedException e) {
             e.printStackTrace();
         } catch (IndexOutOfBoundsException e) {
-            Log.d(this.getClass().getName(), "Fuel type: " + "unknown, IndexOutOfBoundsException occurred");
+            Log.i(this.getClass().getName(), "Fuel type: " + "unknown, IndexOutOfBoundsException occurred");
         } catch (UnsupportedCommandException e) {
-            Log.d(this.getClass().getName(), "Fuel type: " + "unknown, UnsupportedCommandException occurred");
+            Log.i(this.getClass().getName(), "Fuel type: " + "unknown, UnsupportedCommandException occurred");
         }
         return "";
     }

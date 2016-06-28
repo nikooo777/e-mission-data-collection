@@ -33,23 +33,23 @@ public class FileUtilities {
                         "Unable to create directory EMission_tracker. Maybe the SD card is mounted?");
             }
             File outputFile = new File(outDir, fileName);
-            writer = new BufferedWriter(new FileWriter(outputFile,true));
+            this.writer = new BufferedWriter(new FileWriter(outputFile, true));
 
-            writer.append(data);
-            writer.close();
+            this.writer.append(data);
+            this.writer.close();
         } catch (IOException e) {
-            Log.d("error", e.getMessage(), e);
-            Toast.makeText(context, e.getMessage() + " Unable to write to external storage.",
+            Log.i("error", e.getMessage(), e);
+            Toast.makeText(this.context, e.getMessage() + " Unable to write to external storage.",
                     Toast.LENGTH_LONG).show();
         }
     }
 
     public Writer getWriter() {
-        return writer;
+        return this.writer;
     }
 
     public String getAbsolutePath() {
-        return absolutePath;
+        return this.absolutePath;
     }
 
 }

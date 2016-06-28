@@ -152,13 +152,10 @@
         android:checked="true"
         android:textOn="fine"
         android:textOff="coarse"
-        android:layout_below="@+id/button"
         android:showText="true"
         android:maxLines="1"
-        android:layout_alignRight="@+id/textViewFlow"
-        android:layout_alignEnd="@+id/textViewFlow"
-        android:layout_toRightOf="@+id/rpmLabel"
-        android:layout_toEndOf="@+id/rpmLabel"/>
+        android:layout_below="@+id/button"
+        android:layout_centerHorizontal="true"/>
 
     <View
         android:id="@+id/SplitLine_hor1"
@@ -265,7 +262,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="Acceleration"
+        android:text="@string/acceleration"
         android:id="@+id/labelAcceleration"
         android:layout_below="@+id/SplitLine_hor2"
         android:layout_alignParentLeft="true"

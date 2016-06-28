@@ -44,11 +44,11 @@ public class RecordingThread implements Runnable {
     @Override
     public void run() {
         RUN = true;
-        Log.d(this.getClass().getName(), "Start Recording");
+        Log.i(this.getClass().getName(), "Start Recording");
         while (RUN) {
             if (!this.service.getCarManager().isConnected()) {
                 // Toast.makeText(service.getApplicationContext(), "Car is not connected", Toast.LENGTH_LONG).show();
-                Log.d("ODBRECLOC", "Car is not connected");
+                Log.i("ODBRECLOC", "Car is not connected");
             }
             else {
                 try {
@@ -57,16 +57,16 @@ public class RecordingThread implements Runnable {
                     StringBuilder res = new StringBuilder();
                     for (String key : carInfo.keySet()) {
                         //res += key + "=" + carInfo.get(key) + ", ";
-                        res.append(key+"="+carInfo.get(key)+", ");
+                        res.append(key + "=" + carInfo.get(key) + ", ");
                     }
-                    res.append("ACC="+service.getCurrentAcceleration()+", ");
+                    res.append("ACC=" + this.service.getCurrentAcceleration() + ", ");
                     storeCurrentValues(carInfo);
                     OutputFile.saveData(res.toString());
-                    Log.d(this.getClass().getName(), "Storing car data: " + res);
+                    Log.i(this.getClass().getName(), "Storing car data: " + res);
                 } catch (ConnectionException e) {
                     e.printStackTrace();
                     Toast.makeText(this.service.getApplicationContext(), "ConnectionException: Car is not connected", Toast.LENGTH_LONG).show();
-                    Log.d(this.getClass().getName(), "ConnectionException: Car is not connected");
+                    Log.i(this.getClass().getName(), "ConnectionException: Car is not connected");
                 }
             }
             try {
@@ -75,6 +75,6 @@ public class RecordingThread implements Runnable {
                 e.printStackTrace();
             }
         }
-        Log.d(this.getClass().getName(), "Stop Recording");
+        Log.i(this.getClass().getName(), "Stop Recording");
     }
 }

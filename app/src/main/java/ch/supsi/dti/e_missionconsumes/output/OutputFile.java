@@ -24,14 +24,16 @@ public class OutputFile {
         File d = new File(Constants.FILE_DEF_DIR);
         if (!d.exists()) {
             d.mkdir();
-            Log.d("SensorFile", "Directory " + d.getAbsolutePath() + " created");
+            Log.i("SensorFile", "Directory " + d.getAbsolutePath() + " created");
         }
 
         try {
-            if (output != null) output.close();
+            if (output != null) {
+                output.close();
+            }
             output = new BufferedWriter(new FileWriter(currentFile));
             RECORDING = true;
-            Log.d("OutputFile", "File " + currentFile + " created");
+            Log.i("OutputFile", "File " + currentFile + " created");
         } catch (Exception e) {
             e.printStackTrace();
         }

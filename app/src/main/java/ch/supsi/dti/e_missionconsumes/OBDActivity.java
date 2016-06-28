@@ -49,7 +49,7 @@ public class OBDActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Log.d(this.getClass().getName(), "OBDActivity started");
+        Log.i(this.getClass().getName(), "OBDActivity started");
         if (mBound == false) {
             Intent intent = new Intent(this, OBDMainService.class);
             bindService(intent, this.mConnection, Context.BIND_AUTO_CREATE);
@@ -86,7 +86,7 @@ public class OBDActivity extends Activity {
             if (DEV_NAME.length() == 0) {
                 return;
             }
-            Log.d(this.getClass().getName(), DEV_NAME);
+            Log.i(this.getClass().getName(), DEV_NAME);
             mService.connectToAdapter(DEV_NAME);
             //check fuel type
             String fuelType = mService.getCarManager().getFuelType();
@@ -174,7 +174,7 @@ public class OBDActivity extends Activity {
                     int position = ((AlertDialog) dialog).getListView().getCheckedItemPosition();
                     String deviceAddress = devices.get(position);
                     DEV_NAME = deviceAddress;
-                    Log.d(this.getClass().getName(), "BT=" + deviceAddress);
+                    Log.i(this.getClass().getName(), "BT=" + deviceAddress);
                     postBTselection();
                 }
             });

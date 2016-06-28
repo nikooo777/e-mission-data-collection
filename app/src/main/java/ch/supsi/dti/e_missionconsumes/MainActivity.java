@@ -1,18 +1,14 @@
 package ch.supsi.dti.e_missionconsumes;
 
-import android.content.Context;
 import android.content.Intent;
 import android.hardware.Sensor;
-import android.hardware.SensorEvent;
-import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.widget.TextView;
-import android.widget.Toast;
 
-public class MainActivity extends AppCompatActivity  {
+public class MainActivity extends AppCompatActivity {
     private static final int DELAY = 100; //minimum of 100ms between each polling
     private SensorManager senSensorManager;
     private Sensor senAccelerometer;
@@ -24,7 +20,7 @@ public class MainActivity extends AppCompatActivity  {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Log.d(this.getClass().getName(), "OBD Start");
+        Log.i(this.getClass().getName(), "OBD Start");
         Intent intent = new Intent(this, OBDActivity.class);
         startActivity(intent);
     }

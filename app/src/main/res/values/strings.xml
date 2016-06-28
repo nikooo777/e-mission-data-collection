@@ -98,6 +98,7 @@
     <string name="fuel_type">Fuel Type</string>
     <string name="na">NA</string>
     <string name="_0_m_ss">0 m/ss</string>
+    <string name="acceleration">Acceleration</string>
 
     <string-array name="string_array_trips">
         <item>School</item>

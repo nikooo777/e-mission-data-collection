@@ -82,7 +82,7 @@ public class FuelEconomyObdCommand extends ObdCommand {
         //TODO: FIX MAF
 
         if (supRate) {
-            Log.d(this.TAG, "Fuel rate supported:");
+            Log.i(this.TAG, "Fuel rate supported:");
             ConsumptionRateCommand rateCommand = new ConsumptionRateCommand();
             rateCommand.run(in, out);
             float fuelFlow = rateCommand.getLitersPerHour();
@@ -95,9 +95,9 @@ public class FuelEconomyObdCommand extends ObdCommand {
             final MassAirFlowCommand mafCommand = new MassAirFlowCommand();
             mafCommand.run(in, out);
             MAF = (float) mafCommand.getMAF();
-            Log.d(this.TAG, "MAF: " + MAF);
+            Log.i(this.TAG, "MAF: " + MAF);
             if (fuelType.equals("Diesel")) {
-                Log.d(this.TAG, "Diesel engine + MAF:");
+                Log.i(this.TAG, "Diesel engine + MAF:");
                 //get engine load
                 final EngineLoadObdCommand loadObdCommand = new EngineLoadObdCommand();
                 loadObdCommand.run(in, out);
@@ -112,7 +112,7 @@ public class FuelEconomyObdCommand extends ObdCommand {
                 this.mpg = this.MPG_KML / this.kml;
             }
             else if (fuelType.equals("Gasoline")) {
-                Log.d(this.TAG, "Gasoline engine + MAF:");
+                Log.i(this.TAG, "Gasoline engine + MAF:");
                 // get l/100km
                 //float mpg= (float) (AIR_FUEL_RATIO*GASOLINE_DENSITY*GRAMS_POUND_CONVERSION*speed*KMH_MPH_CONSTANT)/(SECONDS_HOUR*MAF/*/100*/);
                 // float mpg= (float) (710.7 * speedCommand.getMetricSpeed() / MAF);
@@ -125,7 +125,7 @@ public class FuelEconomyObdCommand extends ObdCommand {
         else if (!supMaf && fuelType.equals("Gasoline"))
 
         {
-            Log.d(this.TAG, "Alternative MAF + Gasoline:");
+            Log.i(this.TAG, "Alternative MAF + Gasoline:");
             //get alternative MAF
             final RPMCommand engineRpmCommand = new RPMCommand();
             System.err.println("Here");
