@@ -59,7 +59,8 @@ public class RecordingThread implements Runnable {
                         //res += key + "=" + carInfo.get(key) + ", ";
                         res.append(key + "=" + carInfo.get(key) + ", ");
                     }
-                    res.append("ACC=" + this.service.getCurrentAcceleration() + ", ");
+                    //res.append("ACC=" + PhoneSensors.getInstance().getAcceleration() + ", ");
+                    res.append(PhoneSensors.getInstance().toString() + ", ");
                     storeCurrentValues(carInfo);
                     OutputFile.saveData(res.toString());
                     Log.i(this.getClass().getName(), "Storing car data: " + res);

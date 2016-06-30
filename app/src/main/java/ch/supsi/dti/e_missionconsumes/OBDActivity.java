@@ -63,6 +63,8 @@ public class OBDActivity extends Activity {
         if (!hasPermission) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_ACCESS_FINE_LOCATION);
         }
+
+        PhoneSensors.initSensors(this);
     }
 
     private ServiceConnection mConnection = new ServiceConnection() {
@@ -217,7 +219,7 @@ public class OBDActivity extends Activity {
             speed.setText(pm.get(CarManager.SPEED));
             fuelFlow.setText(pm.get(CarManager.FUEL));
             odometer.setText(pm.get(CarManager.ODOMETER));
-            this.accelerationLabel.setText(mService.getCurrentAcceleration() + " m/ss");
+            this.accelerationLabel.setText(PhoneSensors.getInstance().getAcceleration() + " m/ss");
         } catch (NoValueException e) {
             e.printStackTrace();
         }

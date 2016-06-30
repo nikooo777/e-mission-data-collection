@@ -77,9 +77,10 @@
         android:text="@string/fuelEco"
         android:id="@+id/economyLabel"
         android:layout_below="@+id/speedLabel"
-        android:layout_toLeftOf="@+id/textViewFuelType"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"/>
+        android:layout_alignParentStart="true"
+        android:layout_alignRight="@+id/labelFuelRateSupport"
+        android:layout_alignEnd="@+id/labelFuelRateSupport"/>
 
     <TextView
         android:layout_width="wrap_content"

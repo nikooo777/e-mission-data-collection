@@ -1,11 +1,8 @@
 package ch.supsi.dti.e_missionconsumes;
 
 import android.app.Service;
-import android.content.Context;
 import android.content.Intent;
 import android.hardware.Sensor;
-import android.hardware.SensorEvent;
-import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Binder;
 import android.os.IBinder;
@@ -16,11 +13,10 @@ import java.util.HashMap;
 import ch.supsi.dti.e_missionconsumes.carconnection.CarManager;
 import ch.supsi.dti.e_missionconsumes.carconnection.ConnectionException;
 
-public class OBDMainService extends Service implements SensorEventListener {
+public class OBDMainService extends Service {
     private CarManager carManager = null;
 
     public OBDMainService() {
-
     }
 
     public CarManager getCarManager() {
@@ -33,9 +29,9 @@ public class OBDMainService extends Service implements SensorEventListener {
             this.carManager = new CarManager();
         }
 
-        this.senSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
-        this.senAccelerometer = this.senSensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION);
-        this.senSensorManager.registerListener(this, this.senAccelerometer, SensorManager.SENSOR_DELAY_NORMAL);
+        // this.senSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+        // this.senAccelerometer = this.senSensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION);
+        // this.senSensorManager.registerListener(this, this.senAccelerometer, SensorManager.SENSOR_DELAY_NORMAL);
     }
 
     private final IBinder mBinder = new LocalBinder();
@@ -80,7 +76,7 @@ public class OBDMainService extends Service implements SensorEventListener {
     private float lastUpdate = -1f;
     private double currentAcceleration = -1;
 
-    @Override
+    /*@Override
     public void onSensorChanged(SensorEvent event) {
         Sensor mySensor = event.sensor;
         if (mySensor.getType() == Sensor.TYPE_LINEAR_ACCELERATION) {
@@ -93,16 +89,15 @@ public class OBDMainService extends Service implements SensorEventListener {
             this.currentAcceleration = Math.sqrt(Math.pow(acceleration[0], 2) + Math.pow(acceleration[1], 2) + Math.pow(acceleration[2], 2));
             this.lastUpdate = curTime;
         }
-    }
+    }*/
 
-    public double getCurrentAcceleration() {
-        return this.currentAcceleration;
-    }
+    //public double getCurrentAcceleration() {
+    //   return this.currentAcceleration;
+    //}
 
-    @Override
-    public void onAccuracyChanged(Sensor sensor, int accuracy) {
-
-    }
+    // @Override
+    //public void onAccuracyChanged(Sensor sensor, int accuracy) {
+    //    }
 
     public class LocalBinder extends Binder {
         public OBDMainService getService() {
