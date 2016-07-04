@@ -56,7 +56,7 @@ public class PhoneSensors implements SensorEventListener {
         }
     }
 
-    public static PhoneSensors initSensors(Context context) {
+    public static PhoneSensors init(Context context) {
         if (instance == null) {
             instance = new PhoneSensors(context);
         }

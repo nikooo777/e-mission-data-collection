@@ -12,6 +12,7 @@ import java.util.UUID;
 import ch.supsi.dti.e_missionconsumes.obd_commands.CheckObdCommands;
 import ch.supsi.dti.e_missionconsumes.obd_commands.FuelEconomyObdCommand;
 import obd.commands.SpeedCommand;
+import obd.commands.control.VinCommand;
 import obd.commands.engine.RPMCommand;
 import obd.commands.engine.ThrottlePositionCommand;
 import obd.commands.fuel.FindFuelTypeCommand;
@@ -54,9 +55,14 @@ public class CarManager {
     private boolean FuelRateSupport = false;
     private boolean MAPSupport = false;
     private boolean FuelLevelSupport = false;
+    private String vim = "NOT_RETRIEVED";
 
     public String getFuelType() {
         return this.fuelType;
+    }
+
+    public String getVIM() {
+        return this.vim;
     }
 
     public void setFuelType(String ft) {
@@ -99,6 +105,20 @@ public class CarManager {
             String checked = check.toString();
             this.commands = checked;
             Log.i(this.getClass().getName(), "commands supported: " + checked);
+            VinCommand vinCommand = new VinCommand();
+            vinCommand.run(this.sock.getInputStream(), this.sock.getOutputStream());
+            String vin = "";
+            while (vin.isEmpty()) {
+                Thread.sleep(10);
+                vin = vinCommand.getCalculatedResult();
+            }
+
+            String carModel = CarInfo.getInstance().getCarModel(vinCommand.getCalculatedResult());
+            if (carModel.isEmpty()) {
+                //TODO: prompt for the name of the car
+                CarInfo.getInstance().insertModel(vin, carModel);
+            }
+
             //determine fuel type
                 /*FindFuelTypeCommand fuelTypeObdCommand = new FindFuelTypeCommand();
                 fuelTypeObdCommand.run(sock.getInputStream(), sock.getOutputStream());

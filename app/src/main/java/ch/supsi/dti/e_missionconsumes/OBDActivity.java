@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Set;
 
+import ch.supsi.dti.e_missionconsumes.carconnection.CarInfo;
 import ch.supsi.dti.e_missionconsumes.carconnection.CarManager;
 import ch.supsi.dti.e_missionconsumes.carconnection.ConnectionException;
 
@@ -64,7 +65,8 @@ public class OBDActivity extends Activity {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_ACCESS_FINE_LOCATION);
         }
 
-        PhoneSensors.initSensors(this);
+        PhoneSensors.init(this);
+        CarInfo.init(this);
     }
 
     private ServiceConnection mConnection = new ServiceConnection() {
@@ -95,6 +97,9 @@ public class OBDActivity extends Activity {
 
             //check supported operations
             updateSupportedSensors();
+
+            //let the user select his car type
+
 
             if (fuelType.length() == 0) {
                 fuelType = fuelDialogType(OBDActivity.this);

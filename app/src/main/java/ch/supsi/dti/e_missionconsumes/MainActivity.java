@@ -1,4 +1,4 @@
-package ch.supsi.dti.e_missionconsumes;
+/*package ch.supsi.dti.e_missionconsumes;
 
 import android.content.Intent;
 import android.hardware.Sensor;
@@ -25,3 +25,4 @@ public class MainActivity extends AppCompatActivity {
         startActivity(intent);
     }
 }
+*/

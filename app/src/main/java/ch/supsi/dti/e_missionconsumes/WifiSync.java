@@ -37,13 +37,18 @@ public class WifiSync extends BroadcastReceiver {
                 Log.i(this.getClass().getName(), "No files to upload");
                 return;
             }
-            for (String f : list) {
+            for (final String f : list) {
                 //inner-for
                 final String fullPath = d.getPath() + "/" + f;
                 new Thread(new Runnable() {
                     @Override
                     public void run() {
-                        uploadFile(fullPath);
+                        int responseCode = uploadFile(fullPath);
+                        //rename the file on success
+                        if (responseCode == 200) {
+                            File file = new File(fullPath);
+                            file.renameTo(new File(fullPath + ".stored"));
+                        }
                     }
                 }).start();
 
