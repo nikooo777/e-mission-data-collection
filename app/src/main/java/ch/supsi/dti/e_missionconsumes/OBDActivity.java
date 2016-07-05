@@ -67,6 +67,15 @@ public class OBDActivity extends Activity {
 
         PhoneSensors.init(this);
         CarInfo.init(this);
+
+        String carModel = CarInfo.getInstance().getCarModel("test");
+        if (carModel.isEmpty()) {
+            CarInfo.getInstance().promptCarModel("test");
+        }
+        carModel = CarInfo.getInstance().getCarModel("test");
+        if (carModel.isEmpty()) {
+            CarInfo.getInstance().promptCarModel("test");
+        }
     }
 
     private ServiceConnection mConnection = new ServiceConnection() {

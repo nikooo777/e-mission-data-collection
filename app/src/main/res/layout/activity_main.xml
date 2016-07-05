@@ -18,7 +18,10 @@
         android:text="@string/rpm"
         android:id="@+id/textViewRpm"
         android:layout_above="@+id/speedLabel"
-        android:layout_toEndOf="@+id/button"/>
+        android:layout_alignRight="@+id/SplitLine_hor1"
+        android:layout_alignEnd="@+id/SplitLine_hor1"
+        android:layout_toEndOf="@+id/button"
+        android:layout_toRightOf="@+id/button"/>
 
     <TextView
         android:layout_width="wrap_content"
@@ -26,9 +29,9 @@
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:text="@string/speed"
         android:id="@+id/textViewSpeed"
-        android:layout_above="@+id/economyLabel"
-        android:layout_toRightOf="@+id/button"
-        android:layout_toEndOf="@+id/button"/>
+        android:layout_below="@+id/textViewRpm"
+        android:layout_alignLeft="@+id/textViewRpm"
+        android:layout_alignStart="@+id/textViewRpm"/>
 
     <TextView
         android:layout_width="wrap_content"
@@ -36,9 +39,9 @@
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:text="@string/fuelEco1"
         android:id="@+id/textViewFuelEco"
-        android:layout_alignBottom="@+id/economyLabel"
-        android:layout_alignLeft="@+id/textViewFlow"
-        android:layout_alignStart="@+id/textViewFlow"/>
+        android:layout_alignTop="@+id/economyLabel"
+        android:layout_alignLeft="@+id/textViewSpeed"
+        android:layout_alignStart="@+id/textViewSpeed"/>
 
     <TextView
         android:layout_width="wrap_content"
@@ -46,9 +49,9 @@
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:text="@string/fuelFlow1"
         android:id="@+id/textViewFlow"
-        android:layout_alignBottom="@+id/flowLabel"
-        android:layout_marginTop="25dp"
-        android:layout_alignStart="@+id/textViewSpeed"/>
+        android:layout_below="@+id/economyLabel"
+        android:layout_alignLeft="@+id/textViewFuelEco"
+        android:layout_alignStart="@+id/textViewFuelEco"/>
 
     <TextView
         android:layout_width="wrap_content"
@@ -123,9 +126,9 @@
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:text="@string/nullKm"
         android:id="@+id/textViewODO"
-        android:layout_above="@+id/labelConsumed"
-        android:layout_toRightOf="@+id/button"
-        android:layout_toEndOf="@+id/button"/>
+        android:layout_below="@+id/flowLabel"
+        android:layout_alignLeft="@+id/textViewFlow"
+        android:layout_alignStart="@+id/textViewFlow"/>
 
     <TextView
         android:layout_width="wrap_content"
@@ -141,7 +144,7 @@
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:text="@string/nullL"
         android:id="@+id/textViewConsumed"
-        android:layout_alignBottom="@+id/labelConsumed"
+        android:layout_alignTop="@+id/labelConsumed"
         android:layout_alignLeft="@+id/textViewODO"
         android:layout_alignStart="@+id/textViewODO"/>
 

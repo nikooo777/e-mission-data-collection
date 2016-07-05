@@ -1,11 +1,15 @@
 package ch.supsi.dti.e_missionconsumes.carconnection;
 
+import android.app.AlertDialog;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.provider.BaseColumns;
+import android.text.InputType;
+import android.widget.EditText;
 
 /**
  * Created by Niko on 7/4/2016.
@@ -29,8 +33,44 @@ public class CarInfo {
     }
 
     public String getCarModel(String vin) {
-        Cursor c = this.carDBHelper.getReadableDatabase().rawQuery("select carModel from carStorage where vin = '?';", new String[]{vin});
-        return c.getString(0);
+        Cursor c = this.carDBHelper.getReadableDatabase().rawQuery("select carModel from carStorage where vin =?;", new String[]{vin});
+        if (c.getCount() > 0) {
+            return c.getString(0);
+        }
+        else {
+            return "";
+        }
+    }
+
+    public void promptCarModel(final String vin) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this.context);
+        builder.setTitle("Title");
+
+        // Set up the input
+        final EditText input = new EditText(this.context);
+        // Specify the type of input expected; this, for example, sets the input as a password, and will mask the text
+        input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+        builder.setView(input);
+
+        // Set up the buttons
+        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                String inputModel = input.getText().toString();
+                insertModel(inputModel, vin);
+            }
+        });
+
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+        builder.setCancelable(false);
+
+        //TODO: verify that runOnUiThread isn't required
+        builder.show();
     }
 
     public boolean insertModel(String model, String vin) {

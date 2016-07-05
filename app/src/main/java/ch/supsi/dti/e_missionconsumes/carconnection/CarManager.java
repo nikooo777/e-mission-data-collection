@@ -113,18 +113,17 @@ public class CarManager {
                 vin = vinCommand.getCalculatedResult();
             }
 
-            String carModel = CarInfo.getInstance().getCarModel(vinCommand.getCalculatedResult());
+            String carModel = CarInfo.getInstance().getCarModel(vin);
             if (carModel.isEmpty()) {
-                //TODO: prompt for the name of the car
-                CarInfo.getInstance().insertModel(vin, carModel);
+                CarInfo.getInstance().promptCarModel(vin);
             }
 
             //determine fuel type
-                /*FindFuelTypeCommand fuelTypeObdCommand = new FindFuelTypeCommand();
-                fuelTypeObdCommand.run(sock.getInputStream(), sock.getOutputStream());
-                String type = fuelTypeObdCommand.getFormattedResult();
-                fuelType = type;
-*/
+            /*FindFuelTypeCommand fuelTypeObdCommand = new FindFuelTypeCommand();
+            fuelTypeObdCommand.run(sock.getInputStream(), sock.getOutputStream());
+            String type = fuelTypeObdCommand.getFormattedResult();
+            fuelType = type;
+            */
             this.throttlePositionObdCommand = new ThrottlePositionCommand();
             this.connected = true;
             this.fuelType = checkFuelType();
