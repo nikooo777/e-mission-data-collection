@@ -33,12 +33,25 @@ public class CarInfo {
     }
 
     public String getCarModel(String vin) {
-        Cursor c = this.carDBHelper.getReadableDatabase().rawQuery("select carModel from carStorage where vin =?;", new String[]{vin});
-        if (c.getCount() > 0) {
-            return c.getString(0);
-        }
-        else {
-            return "";
+        SQLiteDatabase db = null;
+        Cursor c = null;
+        try {
+            db = this.carDBHelper.getReadableDatabase();
+            c = db.rawQuery("select carModel from carStorage where vin =?;", new String[]{vin});
+            if (c.getCount() > 0) {
+                c.moveToFirst();
+                return c.getString(0);
+            }
+            else {
+                return "";
+            }
+        } finally {
+            if (db != null) {
+                db.close();
+            }
+            if (c != null) {
+                c.close();
+            }
         }
     }
 

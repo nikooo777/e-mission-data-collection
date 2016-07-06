@@ -20,11 +20,12 @@ import android.support.v4.app.ActivityCompat;
 public class PhoneSensors implements SensorEventListener {
     private static PhoneSensors instance = null;
     private final Context context;
-    private double acceleration = -1;
+    //private double acceleration = -1;
     private double speed = -1;
     private double pressure = -1; //hPa
     private double altitude = Double.MIN_VALUE; //NL wouldn't like -1
     private double[] coordinates = new double[2];
+    private double[] acceleration = new double[3];
     // Acquire a reference to the system Location Manager
     private final LocationManager locationManager;
     private SensorManager senSensorManager;
@@ -92,7 +93,7 @@ public class PhoneSensors implements SensorEventListener {
         }
     };
 
-    public double getAcceleration() {
+    public double[] getAcceleration() {
         return this.acceleration;
     }
 
@@ -116,7 +117,7 @@ public class PhoneSensors implements SensorEventListener {
         return this.coordinates[1];
     }
 
-    public double getCurrentAcceleration() {
+    public double[] getCurrentAcceleration() {
         return this.acceleration;
     }
 
@@ -124,11 +125,11 @@ public class PhoneSensors implements SensorEventListener {
     public void onSensorChanged(SensorEvent event) {
         Sensor mySensor = event.sensor;
         if (mySensor.getType() == Sensor.TYPE_LINEAR_ACCELERATION) {
-            float[] acceleration = new float[3];
-            acceleration[0] = event.values[0];
-            acceleration[1] = event.values[1];
-            acceleration[2] = event.values[2];
-            this.acceleration = Math.sqrt(Math.pow(acceleration[0], 2) + Math.pow(acceleration[1], 2) + Math.pow(acceleration[2], 2));
+
+            this.acceleration[0] = event.values[0];
+            this.acceleration[1] = event.values[1];
+            this.acceleration[2] = event.values[2];
+            //this.acceleration = Math.sqrt(Math.pow(this.acceleration[0], 2) + Math.pow(this.acceleration[1], 2) + Math.pow(this.acceleration[2], 2));
         }
         else if (mySensor.getType() == Sensor.TYPE_PRESSURE) {
             this.pressure = event.values[0];
