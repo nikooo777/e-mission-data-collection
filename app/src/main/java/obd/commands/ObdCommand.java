@@ -17,6 +17,9 @@ import obd.exceptions.UnsupportedCommandException;
 
 /**
  * Base OBD command.
+ *
+ * @author pires
+ * @version $Id: $Id
  */
 public abstract class ObdCommand {
 
@@ -36,9 +39,14 @@ public abstract class ObdCommand {
     protected String cmd = null;
     protected boolean useImperialUnits = false;
     protected String rawData = null;
-    protected long responseTimeDelay = 200;
+    protected Long responseDelayInMs = null;
     private long start;
     private long end;
+    private boolean ready = false;
+
+    public boolean isReady() {
+        return this.ready;
+    }
 
     /**
      * Default ctor to use
@@ -47,10 +55,7 @@ public abstract class ObdCommand {
      */
     public ObdCommand(String command) {
         this.cmd = command;
-        this.buffer = new ArrayList<Integer>();
-        /*if (this instanceof ReturnAsapCommand) {
-            this.cmd += " 1";//speed up
-        }*/
+        this.buffer = new ArrayList<>();
     }
 
     /**
@@ -70,64 +75,66 @@ public abstract class ObdCommand {
 
     /**
      * Sends the OBD-II request and deals with the response.
-     * <p>
+     * <p/>
      * This method CAN be overriden in fake commands.
      *
      * @param in  a {@link InputStream} object.
      * @param out a {@link OutputStream} object.
-     * @throws IOException            if any.
+     * @throws IOException          if any.
      * @throws InterruptedException if any.
      */
     public void run(InputStream in, OutputStream out) throws IOException,
             InterruptedException {
-        start = System.currentTimeMillis();
-        sendCommand(out);
-        readResult(in);
-        end = System.currentTimeMillis();
+        synchronized (ObdCommand.class) {//Only one command can write and read a data in one time.
+            this.start = System.currentTimeMillis();
+            this.ready = false;
+            sendCommand(out);
+            readResult(in);
+            this.ready = true;
+            this.end = System.currentTimeMillis();
+        }
     }
 
     /**
      * Sends the OBD-II request.
-     * <p>
+     * <p/>
      * This method may be overriden in subclasses, such as ObMultiCommand or
      * TroubleCodesCommand.
      *
      * @param out The output stream.
-     * @throws IOException            if any.
+     * @throws IOException          if any.
      * @throws InterruptedException if any.
      */
     protected void sendCommand(OutputStream out) throws IOException,
             InterruptedException {
         // write to OutputStream (i.e.: a BluetoothSocket) with an added
         // Carriage return
-        out.write((cmd + "\r").getBytes());
+        out.write((this.cmd + "\r").getBytes());
         out.flush();
-
-    /*
-     * HACK GOLDEN HAMMER ahead!!
-     *
-     * Due to the time that some systems may take to respond, let's give it
-     * 200ms.
-     */
-        Thread.sleep(responseTimeDelay);
+        if (this.responseDelayInMs != null && this.responseDelayInMs > 0) {
+            Thread.sleep(this.responseDelayInMs);
+        }
     }
 
     /**
      * Resends this command.
      *
      * @param out a {@link OutputStream} object.
-     * @throws IOException            if any.
+     * @throws IOException          if any.
      * @throws InterruptedException if any.
      */
     protected void resendCommand(OutputStream out) throws IOException,
             InterruptedException {
         out.write("\r".getBytes());
         out.flush();
+        if (this.responseDelayInMs != null && this.responseDelayInMs > 0) {
+            Thread.sleep(this.responseDelayInMs);
+        }
     }
 
     /**
      * Reads the OBD-II response.
-     * <p>
+     * <p/>
      * This method may be overriden in subclasses, such as ObdMultiCommand.
      *
      * @param in a {@link InputStream} object.
@@ -147,22 +154,22 @@ public abstract class ObdCommand {
     protected abstract void performCalculations();
 
     /**
-     *
+     * <p>fillBuffer.</p>
      */
     protected void fillBuffer() {
-        rawData = rawData.replaceAll("\\s", ""); //removes all [ \t\n\x0B\f\r]
-        rawData = rawData.replaceAll("(BUS INIT)|(BUSINIT)|(\\.)", "");
+        this.rawData = this.rawData.replaceAll("\\s", ""); //removes all [ \t\n\x0B\f\r]
+        this.rawData = this.rawData.replaceAll("(BUS INIT)|(BUSINIT)|(\\.)", "");
 
-        if (!rawData.matches("([0-9A-F])+")) {
-            throw new NonNumericResponseException(rawData);
+        if (!this.rawData.matches("([0-9A-F])+")) {
+            throw new NonNumericResponseException(this.rawData);
         }
 
         // read string each two chars
-        buffer.clear();
+        this.buffer.clear();
         int begin = 0;
         int end = 2;
-        while (end <= rawData.length()) {
-            buffer.add(Integer.decode("0x" + rawData.substring(begin, end)));
+        while (end <= this.rawData.length()) {
+            this.buffer.add(Integer.decode("0x" + this.rawData.substring(begin, end)));
             begin = end;
             end += 2;
         }
@@ -179,9 +186,16 @@ public abstract class ObdCommand {
         byte b = 0;
         StringBuilder res = new StringBuilder();
 
-        // read until '>' arrives
-        while ((char) (b = (byte) in.read()) != '>') {
-            res.append((char) b);
+        // read until '>' arrives OR end of stream reached
+        char c;
+        // -1 if the end of the stream is reached
+        while (((b = (byte) in.read()) > -1)) {
+            c = (char) b;
+            if (c == '>') // read until '>' arrives
+            {
+                break;
+            }
+            res.append(c);
         }
 
     /*
@@ -192,7 +206,7 @@ public abstract class ObdCommand {
      * is actually TWO bytes (two chars) in the socket. So, we must do some more
      * processing..
      */
-        rawData = res.toString().replaceAll("SEARCHING", "");
+        this.rawData = res.toString().replaceAll("SEARCHING", "");
 
     /*
      * Data may have echo or informative text like "INIT BUS..." or similar.
@@ -200,11 +214,11 @@ public abstract class ObdCommand {
      * everything from the last carriage return before those two (trimmed above).
      */
         //kills multiline.. rawData = rawData.substring(rawData.lastIndexOf(13) + 1);
-        rawData = rawData.replaceAll("\\s", "");//removes all [ \t\n\x0B\f\r]
+        this.rawData = this.rawData.replaceAll("\\s", "");//removes all [ \t\n\x0B\f\r]
     }
 
     void checkForErrors() {
-        for (Class<? extends ResponseException> errorClass : ERROR_CLASSES) {
+        for (Class<? extends ResponseException> errorClass : this.ERROR_CLASSES) {
             ResponseException messageError;
 
             try {
@@ -216,41 +230,51 @@ public abstract class ObdCommand {
                 throw new RuntimeException(e);
             }
 
-            if (messageError.isError(rawData)) {
+            if (messageError.isError(this.rawData)) {
                 throw messageError;
             }
         }
     }
 
     /**
+     * <p>getResult.</p>
+     *
      * @return the raw command response in string representation.
      */
     public String getResult() {
-        return rawData;
+        return this.rawData;
     }
 
     /**
+     * <p>getFormattedResult.</p>
+     *
      * @return a formatted command response in string representation.
      */
     public abstract String getFormattedResult();
 
     /**
+     * <p>getCalculatedResult.</p>
+     *
      * @return the command response in string representation, without formatting.
      */
     public abstract String getCalculatedResult();
 
     /**
+     * <p>Getter for the field <code>buffer</code>.</p>
+     *
      * @return a list of integers
      */
     protected ArrayList<Integer> getBuffer() {
-        return buffer;
+        return this.buffer;
     }
 
     /**
+     * <p>useImperialUnits.</p>
+     *
      * @return true if imperial units are used, or false otherwise
      */
     public boolean useImperialUnits() {
-        return useImperialUnits;
+        return this.useImperialUnits;
     }
 
     /**
@@ -273,6 +297,8 @@ public abstract class ObdCommand {
     }
 
     /**
+     * <p>getName.</p>
+     *
      * @return the OBD command name.
      */
     public abstract String getName();
@@ -280,36 +306,86 @@ public abstract class ObdCommand {
     /**
      * Time the command waits before returning from #sendCommand()
      *
-     * @return delay in ms
+     * @return delay in ms (may be null)
      */
-    public long getResponseTimeDelay() {
-        return responseTimeDelay;
+    public Long getResponseTimeDelay() {
+        return this.responseDelayInMs;
     }
 
     /**
      * Time the command waits before returning from #sendCommand()
      *
-     * @param responseTimeDelay
+     * @param responseDelayInMs a Long (can be null)
      */
-    public void setResponseTimeDelay(long responseTimeDelay) {
-        this.responseTimeDelay = responseTimeDelay;
+    public void setResponseTimeDelay(Long responseDelayInMs) {
+        this.responseDelayInMs = responseDelayInMs;
     }
 
     //fixme resultunit
+
+    /**
+     * <p>Getter for the field <code>start</code>.</p>
+     *
+     * @return a long.
+     */
     public long getStart() {
-        return start;
+        return this.start;
     }
 
+    /**
+     * <p>Setter for the field <code>start</code>.</p>
+     *
+     * @param start a long.
+     */
     public void setStart(long start) {
         this.start = start;
     }
 
+    /**
+     * <p>Getter for the field <code>end</code>.</p>
+     *
+     * @return a long.
+     */
     public long getEnd() {
-        return end;
+        return this.end;
     }
 
+    /**
+     * <p>Setter for the field <code>end</code>.</p>
+     *
+     * @param end a long.
+     */
     public void setEnd(long end) {
         this.end = end;
+    }
+
+    /**
+     * <p>getCommandPID.</p>
+     *
+     * @return a {@link String} object.
+     * @since 1.0-RC12
+     */
+    public final String getCommandPID() {
+        return this.cmd.substring(3);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        ObdCommand that = (ObdCommand) o;
+
+        return this.cmd != null ? this.cmd.equals(that.cmd) : that.cmd == null;
+    }
+
+    @Override
+    public int hashCode() {
+        return this.cmd != null ? this.cmd.hashCode() : 0;
     }
 
 }

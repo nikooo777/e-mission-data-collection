@@ -2,6 +2,9 @@ package obd.enums;
 
 /**
  * All OBD protocols.
+ *
+ * @author pires
+ * @version $Id: $Id
  */
 public enum ObdProtocols {
 
@@ -82,6 +85,6 @@ public enum ObdProtocols {
      * @return a char.
      */
     public char getValue() {
-        return value;
+        return this.value;
     }
 }

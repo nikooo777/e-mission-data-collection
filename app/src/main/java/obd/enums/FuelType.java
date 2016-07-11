@@ -6,6 +6,9 @@ import java.util.Map;
 /**
  * MODE 1 PID 0x51 will return one of the following values to identify the fuel
  * type of the vehicle.
+ *
+ * @author pires
+ * @version $Id: $Id
  */
 public enum FuelType {
     GASOLINE(0x01, "Gasoline"),
@@ -31,7 +34,10 @@ public enum FuelType {
     HYBRID_MIXED(0x15, "Hybrid Mixed"),
     HYBRID_REGENERATIVE(0x16, "Hybrid Regenerative");
 
-    private static Map<Integer, FuelType> map = new HashMap<Integer, FuelType>();
+    /**
+     * Constant <code>map</code>
+     */
+    private static Map<Integer, FuelType> map = new HashMap<>();
 
     static {
         for (FuelType error : FuelType.values())
@@ -50,7 +56,7 @@ public enum FuelType {
      * <p>fromValue.</p>
      *
      * @param value a int.
-     * @return a {@link com.github.pires.obd.enums.FuelType} object.
+     * @return a {@link obd.enums.FuelType} object.
      */
     public static FuelType fromValue(final int value) {
         return map.get(value);
@@ -62,7 +68,7 @@ public enum FuelType {
      * @return a int.
      */
     public int getValue() {
-        return value;
+        return this.value;
     }
 
     /**
@@ -71,7 +77,7 @@ public enum FuelType {
      * @return a {@link String} object.
      */
     public String getDescription() {
-        return description;
+        return this.description;
     }
 
 }

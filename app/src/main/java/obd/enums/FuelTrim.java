@@ -5,6 +5,9 @@ import java.util.Map;
 
 /**
  * Select one of the Fuel Trim percentage banks to access.
+ *
+ * @author pires
+ * @version $Id: $Id
  */
 public enum FuelTrim {
 
@@ -13,7 +16,10 @@ public enum FuelTrim {
     SHORT_TERM_BANK_2(0x08, "Short Term Fuel Trim Bank 2"),
     LONG_TERM_BANK_2(0x09, "Long Term Fuel Trim Bank 2");
 
-    private static Map<Integer, FuelTrim> map = new HashMap<Integer, FuelTrim>();
+    /**
+     * Constant <code>map</code>
+     */
+    private static Map<Integer, FuelTrim> map = new HashMap<>();
 
     static {
         for (FuelTrim error : FuelTrim.values())
@@ -32,7 +38,7 @@ public enum FuelTrim {
      * <p>fromValue.</p>
      *
      * @param value a int.
-     * @return a {@link com.github.pires.obd.enums.FuelTrim} object.
+     * @return a {@link obd.enums.FuelTrim} object.
      */
     public static FuelTrim fromValue(final int value) {
         return map.get(value);
@@ -44,7 +50,7 @@ public enum FuelTrim {
      * @return a int.
      */
     public int getValue() {
-        return value;
+        return this.value;
     }
 
     /**
@@ -53,7 +59,7 @@ public enum FuelTrim {
      * @return a {@link String} object.
      */
     public String getBank() {
-        return bank;
+        return this.bank;
     }
 
     /**
@@ -62,7 +68,7 @@ public enum FuelTrim {
      * @return a {@link String} object.
      */
     public final String buildObdCommand() {
-        return new String("01 " + value);
+        return new String("01 0" + this.value);
     }
 
 }

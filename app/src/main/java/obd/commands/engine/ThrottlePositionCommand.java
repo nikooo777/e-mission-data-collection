@@ -5,6 +5,9 @@ import obd.enums.AvailableCommandNames;
 
 /**
  * Read the throttle position in percentage.
+ *
+ * @author pires
+ * @version $Id: $Id
  */
 public class ThrottlePositionCommand extends PercentageObdCommand {
 
@@ -18,14 +21,14 @@ public class ThrottlePositionCommand extends PercentageObdCommand {
     /**
      * Copy ctor.
      *
-     * @param other a {@link ThrottlePositionCommand} object.
+     * @param other a {@link obd.commands.engine.ThrottlePositionCommand} object.
      */
     public ThrottlePositionCommand(ThrottlePositionCommand other) {
         super(other);
     }
 
     /**
-     *
+     * {@inheritDoc}
      */
     @Override
     public String getName() {

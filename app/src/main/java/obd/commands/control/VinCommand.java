@@ -1,18 +1,14 @@
 package obd.commands.control;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import obd.commands.PersistentCommand;
 import obd.enums.AvailableCommandNames;
 
 public class VinCommand extends PersistentCommand {
 
     String vin = "";
-    int[] bufferUse = new int[]{
-            2, 3, 4, 5, 6,
-            9, 10, 11, 12, 13,
-            16, 17, 18, 19, 20,
-            23, 24, 25, 26, 27,
-            30, 31, 32, 33, 34
-    };
 
     /**
      * Default ctor.
@@ -24,37 +20,77 @@ public class VinCommand extends PersistentCommand {
     /**
      * Copy ctor.
      *
-     * @param other a {@link VinCommand} object.
+     * @param other a {@link obd.commands.control.VinCommand} object.
      */
     public VinCommand(VinCommand other) {
         super(other);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected void performCalculations() {
-        // ignore first two bytes [01 31] of the response
-        StringBuilder b = new StringBuilder();
-        for (int i : bufferUse) {
-            b.append(new Character((char) buffer.get(i).intValue()).toString());
+        final String result = getResult();
+        String workingData;
+        if (result.contains(":")) {//CAN(ISO-15765) protocol.
+            workingData = result.replaceAll(".:", "").substring(9);//9 is xxx490201, xxx is bytes of information to follow.
+            Matcher m = Pattern.compile("[^a-z0-9 ]", Pattern.CASE_INSENSITIVE).matcher(convertHexToString(workingData));
+            if (m.find()) {
+                workingData = result.replaceAll("0:49", "").replaceAll(".:", "");
+            }
         }
-        vin = b.toString().replaceAll("[\u0000-\u001f]", "");
+        else {//ISO9141-2, KWP2000 Fast and KWP2000 5Kbps (ISO15031) protocols.
+            workingData = result.replaceAll("49020.", "");
+        }
+        this.vin = convertHexToString(workingData).replaceAll("[\u0000-\u001f]", "");
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String getFormattedResult() {
-        return String.valueOf(vin);
+        return String.valueOf(this.vin);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String getName() {
         return AvailableCommandNames.VIN.getValue();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String getCalculatedResult() {
-        return String.valueOf(vin);
+        return String.valueOf(this.vin);
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void fillBuffer() {
+    }
+
+    public String convertHexToString(String hex) {
+        StringBuilder sb = new StringBuilder();
+        //49204c6f7665204a617661 split into two characters 49, 20, 4c...
+        for (int i = 0; i < hex.length() - 1; i += 2) {
+
+            //grab the hex in pairs
+            String output = hex.substring(i, (i + 2));
+            //convert hex to decimal
+            int decimal = Integer.parseInt(output, 16);
+            //convert the decimal to character
+            sb.append((char) decimal);
+        }
+        return sb.toString();
+    }
 }
 
 

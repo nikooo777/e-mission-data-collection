@@ -1,46 +1,55 @@
 package obd.commands.protocol;
 
 import obd.commands.PersistentCommand;
-import obd.enums.AvailableCommandNames;
 
 /**
- * Retrieve available PIDs.
+ * Retrieve available PIDs ranging from 21 to 40.
+ *
+ * @author pires
+ * @version $Id: $Id
  */
-public class AvailablePidsCommand extends PersistentCommand {
+public abstract class AvailablePidsCommand extends PersistentCommand {
 
     /**
      * Default ctor.
+     *
+     * @param command a {@link String} object.
      */
-    public AvailablePidsCommand() {
-        super("01 00");
+    public AvailablePidsCommand(String command) {
+        super(command);
     }
 
     /**
      * Copy ctor.
      *
-     * @param other a {@link AvailablePidsCommand} object.
+     * @param other a {@link obd.commands.protocol.AvailablePidsCommand} object.
      */
     public AvailablePidsCommand(AvailablePidsCommand other) {
         super(other);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected void performCalculations() {
 
     }
 
-    @Override
-    public String getName() {
-        return AvailableCommandNames.PIDS.getValue();
-    }
-
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String getFormattedResult() {
         return getCalculatedResult();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String getCalculatedResult() {
-        return String.valueOf(rawData);
+        //First 4 characters are a copy of the command code, don't return those
+        return String.valueOf(this.rawData).substring(4);
     }
 }

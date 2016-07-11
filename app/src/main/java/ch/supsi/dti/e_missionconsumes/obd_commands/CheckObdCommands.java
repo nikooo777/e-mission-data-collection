@@ -51,6 +51,9 @@ public class CheckObdCommands extends ObdCommand {
         try {
             final MassAirFlowCommand mafCommand = new MassAirFlowCommand();
             mafCommand.run(in, out);
+            while (!mafCommand.isReady()) {
+                Thread.sleep(1);
+            }
             this.MAF = (float) mafCommand.getMAF();
             if (this.MAF != -1.0f) {
                 this.supportMAF = true;
@@ -67,6 +70,9 @@ public class CheckObdCommands extends ObdCommand {
         try {
             final IntakeManifoldPressureCommand mapCommand = new IntakeManifoldPressureCommand();
             mapCommand.run(in, out);
+            while (!mapCommand.isReady()) {
+                Thread.sleep(1);
+            }
             System.err.println("MAP=" + mapCommand.getFormattedResult());
             this.supportMAP = mapCommand.getMetricUnit() != 0;
             if (this.supportMAP) {
@@ -80,9 +86,9 @@ public class CheckObdCommands extends ObdCommand {
             this.supportMAP = false;
         }
         try {
-            final ConsumptionRateCommand fuelrate = new ConsumptionRateCommand();
-            fuelrate.run(in, out);
-            this.fuelRate = (float) fuelrate.getLitersPerHour();
+            final ConsumptionRateCommand fuelRate = new ConsumptionRateCommand();
+            fuelRate.run(in, out);
+            this.fuelRate = fuelRate.getLitersPerHour();
             if (this.fuelRate != -1.0f) {
                 this.supportFuelRate = true;
                 Log.i("CHECK", "Fuel rate supported");
@@ -130,6 +136,9 @@ public class CheckObdCommands extends ObdCommand {
         String name = "NO NAME";
         try {
             nameCommand.run(in, out);
+            while (!nameCommand.isReady()) {
+                Thread.sleep(1);
+            }
             name = nameCommand.getFormattedResult();
         } catch (Exception e) {
             Log.i("CHECK", "ECU unknown");

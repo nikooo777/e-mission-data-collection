@@ -1,14 +1,15 @@
 package obd.commands.engine;
 
-import obd.commands.ObdCommand;
+import obd.commands.temperature.TemperatureCommand;
 import obd.enums.AvailableCommandNames;
 
 /**
  * Displays the current engine Oil temperature.
+ *
+ * @author pires
+ * @version $Id: $Id
  */
-public class OilTempCommand extends ObdCommand {
-
-    private int oiltemp = -40;
+public class OilTempCommand extends TemperatureCommand {
 
     /**
      * Default ctor.
@@ -20,47 +21,18 @@ public class OilTempCommand extends ObdCommand {
     /**
      * Copy ctor.
      *
-     * @param other a {@link OilTempCommand} object.
+     * @param other a {@link obd.commands.engine.OilTempCommand} object.
      */
     public OilTempCommand(OilTempCommand other) {
         super(other);
     }
 
-    @Override
-    protected void performCalculations() {
-        // ignore first two bytes [41 0C] of the response((A*256)+B)/4
-        int A = buffer.get(2);
-        oiltemp = A - 40;
-    }
-
     /**
-     * @return the engine oil temp
+     * {@inheritDoc}
      */
-    @Override
-    public String getFormattedResult() {
-        return String.format("%d%s", oiltemp, getResultUnit());
-    }
-
-    @Override
-    public String getCalculatedResult() {
-        return String.valueOf(oiltemp);
-    }
-
-    @Override
-    public String getResultUnit() {
-        return "C";
-    }
-
     @Override
     public String getName() {
         return AvailableCommandNames.ENGINE_OIL_TEMP.getValue();
-    }
-
-    /**
-     * @return a int.
-     */
-    public int getOilTemp() {
-        return oiltemp;
     }
 
 }

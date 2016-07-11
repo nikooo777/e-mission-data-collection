@@ -2,6 +2,9 @@ package obd.enums;
 
 /**
  * Names of all available commands.
+ *
+ * @author pires
+ * @version $Id: $Id
  */
 public enum AvailableCommandNames {
 
@@ -18,6 +21,8 @@ public enum AvailableCommandNames {
     MAF("Mass Air Flow"),
     THROTTLE_POS("Throttle Position"),
     TROUBLE_CODES("Trouble Codes"),
+    PENDING_TROUBLE_CODES("Pending Trouble Codes"),
+    PERMANENT_TROUBLE_CODES("Permanent Trouble Codes"),
     FUEL_LEVEL("Fuel Level"),
     FUEL_TYPE("Fuel Type"),
     FUEL_CONSUMPTION_RATE("Fuel Consumption Rate"),
@@ -33,26 +38,33 @@ public enum AvailableCommandNames {
     TIME_TRAVELED_MIL_ON("Time run with MIL on"),
     TIME_SINCE_TC_CLEARED("Time since trouble codes cleared"),
     REL_THROTTLE_POS("Relative throttle position"),
-    PIDS("Available PIDs"),
+    PIDS_01_20("Available PIDs 01-20"),
+    PIDS_21_40("Available PIDs 21-40"),
+    PIDS_41_60("Available PIDs 41-60"),
     ABS_LOAD("Absolute load"),
     ENGINE_OIL_TEMP("Engine oil temperature"),
     AIR_FUEL_RATIO("Air/Fuel Ratio"),
-    WIDEBAND_AIR_FUEL_RATIO("Wideband Air/Fuel Ratio");
+    WIDEBAND_AIR_FUEL_RATIO("Wideband Air/Fuel Ratio"),
+    DESCRIBE_PROTOCOL("Describe protocol"),
+    DESCRIBE_PROTOCOL_NUMBER("Describe protocol number"),
+    IGNITION_MONITOR("Ignition monitor");
 
     private final String value;
 
     /**
-     * @param value
+     * @param value Command description
      */
-    private AvailableCommandNames(String value) {
+    AvailableCommandNames(String value) {
         this.value = value;
     }
 
     /**
+     * <p>Getter for the field <code>value</code>.</p>
+     *
      * @return a {@link String} object.
      */
     public final String getValue() {
-        return value;
+        return this.value;
     }
 
 }

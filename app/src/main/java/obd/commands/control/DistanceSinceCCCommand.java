@@ -6,8 +6,11 @@ import obd.enums.AvailableCommandNames;
 
 /**
  * Distance traveled since codes cleared-up.
+ *
+ * @author pires
+ * @version $Id: $Id
  */
-public class DistanceTraveledSinceCodesClearedCommand extends ObdCommand
+public class DistanceSinceCCCommand extends ObdCommand
         implements SystemOfUnits {
 
     private int km = 0;
@@ -15,51 +18,70 @@ public class DistanceTraveledSinceCodesClearedCommand extends ObdCommand
     /**
      * Default ctor.
      */
-    public DistanceTraveledSinceCodesClearedCommand() {
+    public DistanceSinceCCCommand() {
         super("01 31");
     }
 
     /**
      * Copy ctor.
      *
-     * @param other a {@link DistanceTraveledSinceCodesClearedCommand} object.
+     * @param other a {@link obd.commands.control.DistanceSinceCCCommand} object.
      */
-    public DistanceTraveledSinceCodesClearedCommand(
-            DistanceTraveledSinceCodesClearedCommand other) {
+    public DistanceSinceCCCommand(
+            DistanceSinceCCCommand other) {
         super(other);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected void performCalculations() {
         // ignore first two bytes [01 31] of the response
-        km = buffer.get(2) * 256 + buffer.get(3);
-    }
-
-    public String getFormattedResult() {
-        return useImperialUnits ? String.format("%.2f%s", getImperialUnit(), getResultUnit())
-                : String.format("%d%s", km, getResultUnit());
-    }
-
-    @Override
-    public String getCalculatedResult() {
-        return useImperialUnits ? String.valueOf(getImperialUnit()) : String.valueOf(km);
-    }
-
-    @Override
-    public String getResultUnit() {
-        return useImperialUnits ? "m" : "km";
-    }
-
-    @Override
-    public float getImperialUnit() {
-        return Double.valueOf(km * 0.621371192).floatValue();
+        this.km = this.buffer.get(2) * 256 + this.buffer.get(3);
     }
 
     /**
+     * <p>getFormattedResult.</p>
+     *
+     * @return a {@link String} object.
+     */
+    public String getFormattedResult() {
+        return this.useImperialUnits ? String.format("%.2f%s", getImperialUnit(), getResultUnit())
+                : String.format("%d%s", this.km, getResultUnit());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getCalculatedResult() {
+        return this.useImperialUnits ? String.valueOf(getImperialUnit()) : String.valueOf(this.km);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getResultUnit() {
+        return this.useImperialUnits ? "m" : "km";
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public float getImperialUnit() {
+        return this.km * 0.621371192F;
+    }
+
+    /**
+     * <p>Getter for the field <code>km</code>.</p>
+     *
      * @return a int.
      */
     public int getKm() {
-        return km;
+        return this.km;
     }
 
     /**
@@ -71,6 +93,9 @@ public class DistanceTraveledSinceCodesClearedCommand extends ObdCommand
         this.km = km;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String getName() {
         return AvailableCommandNames.DISTANCE_TRAVELED_AFTER_CODES_CLEARED

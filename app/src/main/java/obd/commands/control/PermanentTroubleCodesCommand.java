@@ -16,7 +16,7 @@ import obd.enums.AvailableCommandNames;
  * @author pires
  * @version $Id: $Id
  */
-public class TroubleCodesCommand extends ObdCommand {
+public class PermanentTroubleCodesCommand extends ObdCommand {
 
     /**
      * Constant <code>dtcLetters={'P', 'C', 'B', 'U'}</code>
@@ -30,19 +30,19 @@ public class TroubleCodesCommand extends ObdCommand {
     protected StringBuilder codes = null;
 
     /**
-     * <p>Constructor for TroubleCodesCommand.</p>
+     * <p>Constructor for PermanentTroubleCodesCommand.</p>
      */
-    public TroubleCodesCommand() {
-        super("03");
+    public PermanentTroubleCodesCommand() {
+        super("0A");
         this.codes = new StringBuilder();
     }
 
     /**
      * Copy ctor.
      *
-     * @param other a {@link obd.commands.control.TroubleCodesCommand} object.
+     * @param other a {@link obd.commands.control.PermanentTroubleCodesCommand} object.
      */
-    public TroubleCodesCommand(TroubleCodesCommand other) {
+    public PermanentTroubleCodesCommand(PermanentTroubleCodesCommand other) {
         super(other);
         this.codes = new StringBuilder();
     }
@@ -66,15 +66,15 @@ public class TroubleCodesCommand extends ObdCommand {
         String canOneFrame = result.replaceAll("[\r\n]", "");
         int canOneFrameLength = canOneFrame.length();
         if (canOneFrameLength <= 16 && canOneFrameLength % 4 == 0) {//CAN(ISO-15765) protocol one frame.
-            workingData = canOneFrame;//43yy{codes}
-            startIndex = 4;//Header is 43yy, yy showing the number of data items.
+            workingData = canOneFrame;//4Ayy{codes}
+            startIndex = 4;//Header is 4Ayy, yy showing the number of data items.
         }
         else if (result.contains(":")) {//CAN(ISO-15765) protocol two and more frames.
-            workingData = result.replaceAll("[\r\n].:", "");//xxx43yy{codes}
-            startIndex = 7;//Header is xxx43yy, xxx is bytes of information to follow, yy showing the number of data items.
+            workingData = result.replaceAll("[\r\n].:", "");//xxx4Ayy{codes}
+            startIndex = 7;//Header is xxx4Ayy, xxx is bytes of information to follow, yy showing the number of data items.
         }
         else {//ISO9141-2, KWP2000 Fast and KWP2000 5Kbps (ISO15031) protocols.
-            workingData = result.replaceAll("^43|[\r\n]43|[\r\n]", "");
+            workingData = result.replaceAll("^4A|[\r\n]4A|[\r\n]", "");
         }
         for (int begin = startIndex; begin < workingData.length(); begin += 4) {
             String dtc = "";
@@ -159,7 +159,7 @@ public class TroubleCodesCommand extends ObdCommand {
      */
     @Override
     public String getName() {
-        return AvailableCommandNames.TROUBLE_CODES.getValue();
+        return AvailableCommandNames.PERMANENT_TROUBLE_CODES.getValue();
     }
 
 }

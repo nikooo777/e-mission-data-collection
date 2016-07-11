@@ -9,46 +9,75 @@ import java.util.Map;
 
 /**
  * Base persistent OBD command.
+ *
+ * @author pires
+ * @version $Id: $Id
  */
 public abstract class PersistentCommand extends ObdCommand {
 
-    private static Map<String, String> knownValues = new HashMap<String, String>();
-    private static Map<String, ArrayList<Integer>> knownBuffers = new HashMap<String, ArrayList<Integer>>();
+    private static Map<String, String> knownValues = new HashMap<>();
+    private static Map<String, ArrayList<Integer>> knownBuffers = new HashMap<>();
 
+    /**
+     * <p>Constructor for PersistentCommand.</p>
+     *
+     * @param command a {@link String} object.
+     */
     public PersistentCommand(String command) {
         super(command);
     }
 
+    /**
+     * <p>Constructor for PersistentCommand.</p>
+     *
+     * @param other a {@link obd.commands.ObdCommand} object.
+     */
     public PersistentCommand(ObdCommand other) {
         this(other.cmd);
     }
 
+    /**
+     * <p>reset.</p>
+     */
     public static void reset() {
-        knownValues = new HashMap<String, String>();
-        knownBuffers = new HashMap<String, ArrayList<Integer>>();
+        knownValues = new HashMap<>();
+        knownBuffers = new HashMap<>();
     }
 
+    /**
+     * <p>knows.</p>
+     *
+     * @param cmd a {@link Class} object.
+     * @return a boolean.
+     */
     public static boolean knows(Class cmd) {
         String key = cmd.getSimpleName();
         return knownValues.containsKey(key);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected void readResult(InputStream in) throws IOException {
         super.readResult(in);
         String key = getClass().getSimpleName();
-        knownValues.put(key, rawData);
-        knownBuffers.put(key, new ArrayList<Integer>(buffer));
+        knownValues.put(key, this.rawData);
+        knownBuffers.put(key, new ArrayList<>(this.buffer));
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void run(InputStream in, OutputStream out) throws IOException, InterruptedException {
         String key = getClass().getSimpleName();
         if (knownValues.containsKey(key)) {
-            rawData = knownValues.get(key);
-            buffer = knownBuffers.get(key);
+            this.rawData = knownValues.get(key);
+            this.buffer = knownBuffers.get(key);
             performCalculations();
-        } else {
+        }
+        else {
             super.run(in, out);
         }
     }

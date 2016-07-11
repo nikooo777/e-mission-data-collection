@@ -5,6 +5,9 @@ import obd.enums.AvailableCommandNames;
 
 /**
  * Engine runtime.
+ *
+ * @author pires
+ * @version $Id: $Id
  */
 public class RuntimeCommand extends ObdCommand {
 
@@ -20,37 +23,52 @@ public class RuntimeCommand extends ObdCommand {
     /**
      * Copy ctor.
      *
-     * @param other a {@link RuntimeCommand} object.
+     * @param other a {@link obd.commands.engine.RuntimeCommand} object.
      */
     public RuntimeCommand(RuntimeCommand other) {
         super(other);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected void performCalculations() {
         // ignore first two bytes [01 0C] of the response
-        value = buffer.get(2) * 256 + buffer.get(3);
+        this.value = this.buffer.get(2) * 256 + this.buffer.get(3);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String getFormattedResult() {
         // determine time
-        final String hh = String.format("%02d", value / 3600);
-        final String mm = String.format("%02d", (value % 3600) / 60);
-        final String ss = String.format("%02d", value % 60);
+        final String hh = String.format("%02d", this.value / 3600);
+        final String mm = String.format("%02d", (this.value % 3600) / 60);
+        final String ss = String.format("%02d", this.value % 60);
         return String.format("%s:%s:%s", hh, mm, ss);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String getCalculatedResult() {
-        return String.valueOf(value);
+        return String.valueOf(this.value);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String getResultUnit() {
         return "s";
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String getName() {
         return AvailableCommandNames.ENGINE_RUNTIME.getValue();

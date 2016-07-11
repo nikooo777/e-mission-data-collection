@@ -127,9 +127,7 @@ public class CarManager {
             this.throttlePositionObdCommand = new ThrottlePositionCommand();
             this.connected = true;
             this.fuelType = checkFuelType();
-            if (this.fuelType != null) {
-                this.fuelEconomy = new FuelEconomyObdCommand(this.fuelType, this.commands);
-            }
+            this.fuelEconomy = new FuelEconomyObdCommand(this.fuelType, this.commands);
         } catch (Exception e) {
             Log.i("Exception", "Bluetooth IO Exception c");
             throw new ConnectionException();
@@ -140,10 +138,10 @@ public class CarManager {
         String rpmResult = null;
         String speedResult = null;
         String fuelResult = "" + -1 + " L/100km";
-        String fuelFlow = "" + -1 + " L/h";
+        //String fuelFlow = "" + -1 + " L/h";
         String odometer = "0 Km";
-        String consumption = "0 L";
-        float tankLevel = 0.f;
+        // String consumption = "0 L";
+        // float tankLevel = 0.f;
         float finalTankLevel = 0.f;
         if (!this.connected) {
             throw new ConnectionException();
@@ -158,14 +156,14 @@ public class CarManager {
             if (this.engineRpmCommand.getRPM() >= 1200) {
                 this.throttlePositionObdCommand.run(this.sock.getInputStream(), this.sock.getOutputStream());
                 if (((int) this.throttlePositionObdCommand.getPercentage()) == 0) {
-                    fuelFlow = "" + 0 + " L/h";
+                    //fuelFlow = "" + 0 + " L/h";
                     fuelResult = "" + 0 + " LHK";
                     //cut off
                     this.fuelEconomy.setFlow(0.f);
                 }
                 else {
                     this.fuelEconomy.run(this.sock.getInputStream(), this.sock.getOutputStream());
-                    fuelFlow = "" + String.format("%.3f", this.fuelEconomy.getFlow()) + " L/h";
+                    //fuelFlow = "" + String.format("%.3f", this.fuelEconomy.getFlow()) + " L/h";
                     fuelResult = this.fuelEconomy.getFormattedResult();
                 }
             }
@@ -196,7 +194,7 @@ public class CarManager {
             if (fuelLevelCommand.getFuelLevel() > 1.0f && tankLevel != -1.0f) {
                 finalTankLevel = tankLevel - fuelLevelCommand.getFuelLevel();
             }*/
-            float fuelCons = 0.f;
+            // float fuelCons = 0.f;
             long currentTime = System.currentTimeMillis();
             long deltaTime = currentTime - this.previousTime;
             this.previousTime = currentTime;
