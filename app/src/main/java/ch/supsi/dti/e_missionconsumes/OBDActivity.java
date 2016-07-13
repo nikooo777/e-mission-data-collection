@@ -45,6 +45,10 @@ public class OBDActivity extends Activity {
     static OBDMainService mService;
     static boolean mBound = false;
     private TextView accelerationLabel;
+    private TextView pressureLabel;
+    private TextView gpsSpeedLabel;
+    private TextView gpsAltitudeLabel;
+    private TextView coordinatesLabel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,6 +60,10 @@ public class OBDActivity extends Activity {
             bindService(intent, this.mConnection, Context.BIND_AUTO_CREATE);
         }
         this.accelerationLabel = (TextView) findViewById(R.id.textViewAcceleration);
+        this.pressureLabel = (TextView) findViewById(R.id.textViewPressure);
+        this.gpsSpeedLabel = (TextView) findViewById(R.id.textViewGPSSpeed);
+        this.gpsAltitudeLabel = (TextView) findViewById(R.id.textViewAltitude);
+        this.coordinatesLabel = (TextView) findViewById(R.id.textViewCoordinates);
         boolean hasPermission = (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED);
         if (!hasPermission) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_WRITE_STORAGE);
@@ -224,7 +232,12 @@ public class OBDActivity extends Activity {
             speed.setText(pm.get(CarManager.SPEED));
             fuelFlow.setText(pm.get(CarManager.FUEL));
             odometer.setText(pm.get(CarManager.ODOMETER));
-            this.accelerationLabel.setText(PhoneSensors.getInstance().getAcceleration() + " m/ss");
+            this.accelerationLabel.setText(PhoneSensors.getInstance().getAccelerationAsFormattedString());
+            this.pressureLabel.setText(PhoneSensors.getInstance().getPressureAsFormattedString());
+            this.gpsSpeedLabel.setText(PhoneSensors.getInstance().getSpeedAsFormattedString());
+            this.gpsAltitudeLabel.setText(PhoneSensors.getInstance().getAltitudeAsFormattedString());
+            this.coordinatesLabel.setText(PhoneSensors.getInstance().getCoordinatesAsFormattedString());
+
         } catch (NoValueException e) {
             e.printStackTrace();
         }

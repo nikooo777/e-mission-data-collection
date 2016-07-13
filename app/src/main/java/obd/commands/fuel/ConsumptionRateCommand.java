@@ -1,5 +1,7 @@
 package obd.commands.fuel;
 
+import android.util.Log;
+
 import obd.commands.ObdCommand;
 import obd.enums.AvailableCommandNames;
 
@@ -40,6 +42,7 @@ public class ConsumptionRateCommand extends ObdCommand {
     @Override
     protected void performCalculations() {
         // ignore first two bytes [hh hh] of the response
+        Log.i("Consumption", "Raw data: " + this.buffer.toString());
         this.fuelRate = (this.buffer.get(2) * 256 + this.buffer.get(3)) * 0.05f;
     }
 

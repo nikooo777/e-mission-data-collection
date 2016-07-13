@@ -74,13 +74,14 @@ public class FuelEconomyObdCommand extends ObdCommand {
         speedCommand.run(in, out);
         float speed = speedCommand.getMetricSpeed();
 
-        fuelType = "Gasoline";
+        fuelType = "Diesel";
 
         System.err.println("STATE=" + supMaf + " " + fuelType);
 
 
         //TODO: FIX MAF
-
+        //TODO: fix everything...
+        supRate = false;
         if (supRate) {
             Log.i(this.TAG, "Fuel rate supported:");
             ConsumptionRateCommand rateCommand = new ConsumptionRateCommand();

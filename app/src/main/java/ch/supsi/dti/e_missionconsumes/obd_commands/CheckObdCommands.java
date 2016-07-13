@@ -12,6 +12,9 @@ import obd.commands.engine.MassAirFlowCommand;
 import obd.commands.fuel.ConsumptionRateCommand;
 import obd.commands.fuel.FuelLevelCommand;
 import obd.commands.pressure.IntakeManifoldPressureCommand;
+import obd.commands.protocol.AvailablePidsCommand_01_20;
+import obd.commands.protocol.AvailablePidsCommand_21_40;
+import obd.commands.protocol.AvailablePidsCommand_41_60;
 
 /**
  * Created by Patrick on 24/08/2015.
@@ -47,6 +50,17 @@ public class CheckObdCommands extends ObdCommand {
 
     @Override
     public void run(InputStream in, OutputStream out) throws IOException, InterruptedException {
+        //check MAF
+        final AvailablePidsCommand_01_20 pids0120 = new AvailablePidsCommand_01_20();
+        final AvailablePidsCommand_21_40 pids2140 = new AvailablePidsCommand_21_40();
+        final AvailablePidsCommand_41_60 pids4160 = new AvailablePidsCommand_41_60();
+        /*while (!pids0120.isReady() || !pids2140.isReady() || !pids4160.isReady()) {
+            Thread.sleep(1);
+        }*/
+        Log.i("SUPPORT-0120", pids0120.getName());
+        Log.i("SUPPORT-2140", pids2140.getName());
+        Log.i("SUPPORT-4160", pids4160.getName());
+
         //check MAF
         try {
             final MassAirFlowCommand mafCommand = new MassAirFlowCommand();

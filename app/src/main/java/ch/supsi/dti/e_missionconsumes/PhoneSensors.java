@@ -14,6 +14,8 @@ import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 
+import java.util.Arrays;
+
 /**
  * Created by Niko on 6/30/2016.
  */
@@ -79,7 +81,7 @@ public class PhoneSensors implements SensorEventListener {
             PhoneSensors.this.speed = location.getSpeed();
             PhoneSensors.this.altitude = location.getAltitude();
             PhoneSensors.this.coordinates[0] = location.getLatitude();
-            PhoneSensors.this.coordinates[0] = location.getLongitude();
+            PhoneSensors.this.coordinates[1] = location.getLongitude();
         }
 
         public void onStatusChanged(String provider, int status, Bundle extras) {
@@ -143,6 +145,28 @@ public class PhoneSensors implements SensorEventListener {
 
     @Override
     public String toString() {
-        return "dev-ac=" + this.acceleration + ", dev-speed=" + this.speed + ", dev-press=" + this.pressure + ", dev-alt=" + this.altitude + ", dev-lat=" + getLatitude() + ", dev-long=" + getLongitude();
+        return "dev-ac=" + Arrays.toString(this.acceleration) + ", dev-speed=" + this.speed + ", dev-press=" + this.pressure + ", dev-alt=" + this.altitude + ", dev-lat=" + getLatitude() + ", dev-long=" + getLongitude();
+    }
+
+    public String getAccelerationAsFormattedString() {
+        return "x: " + PhoneSensors.getInstance().getAcceleration()[0] + " m/ss\n" +
+                "y: " + PhoneSensors.getInstance().getAcceleration()[1] + " m/ss\n" +
+                "z: " + PhoneSensors.getInstance().getAcceleration()[2] + " m/ss";
+    }
+
+    public String getPressureAsFormattedString() {
+        return getPressure() + " mBar";
+    }
+
+    public String getSpeedAsFormattedString() {
+        return getSpeed() + " km/h";
+    }
+
+    public String getAltitudeAsFormattedString() {
+        return getAltitude() + " msl";
+    }
+
+    public String getCoordinatesAsFormattedString() {
+        return String.format("%.4f/%.4f", getLatitude(), getLongitude());
     }
 }
