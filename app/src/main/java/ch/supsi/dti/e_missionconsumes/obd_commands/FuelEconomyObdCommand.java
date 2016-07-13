@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import ch.supsi.dti.e_missionconsumes.FuelType;
 import obd.commands.ObdCommand;
 import obd.commands.SpeedCommand;
 import obd.commands.engine.MassAirFlowCommand;
@@ -21,6 +22,11 @@ import obd.enums.AvailableCommandNames;
 public class FuelEconomyObdCommand extends ObdCommand {
     private final float b = 0.6635f;
     private final float a = 0.0023f;
+    private final FuelType fuelType;
+    private final boolean mafSupport;
+    private final boolean fuelRateSupport;
+    private final boolean mapSupport;
+    private final boolean fuelLevelSupport;
     protected float kml = -1.0f;
     private float mpg = -1.f;
     private final float AIR_FUEL_RATIO = 14.7f;
@@ -34,8 +40,6 @@ public class FuelEconomyObdCommand extends ObdCommand {
     private final float GASOLINE_DENSITY2 = 739.329063f;
     String TAG = "OBD Response";
     protected float flow = 0.f;
-    public static String fuelType = "Gasoline";
-    String commands;
 
 
     public float getFlow() {
@@ -46,10 +50,14 @@ public class FuelEconomyObdCommand extends ObdCommand {
         this.flow = flow;
     }
 
-    public FuelEconomyObdCommand(String fuelType_ext, String commands) {
+    public FuelEconomyObdCommand(FuelType fuelType, boolean mafSupport, boolean fuelRateSupport, boolean mapSupport, boolean fuelLevelSupport) {
         super("");
-        fuelType = fuelType_ext;
-        this.commands = commands;
+
+        this.fuelType = fuelType;
+        this.mafSupport = mafSupport;
+        this.fuelRateSupport = fuelRateSupport;
+        this.mapSupport = mapSupport;
+        this.fuelLevelSupport = fuelLevelSupport;
     }
 
     @Override
@@ -58,31 +66,15 @@ public class FuelEconomyObdCommand extends ObdCommand {
     }
 
     @Override
-    public void run(InputStream in, OutputStream out) throws IOException,
-            InterruptedException {
-
-        // get consumption liters per hour
-        /*final FuelConsumptionRateObdCommand2 fuelConsumptionCommand = new FuelConsumptionRateObdCommand2();
-        fuelConsumptionCommand.run(in, out);*/
-        String[] parts = this.commands.split("\n");
-        boolean supMaf = Boolean.parseBoolean(parts[0]);
-        boolean supRate = Boolean.parseBoolean(parts[1]);
-
+    public void run(InputStream in, OutputStream out) throws IOException, InterruptedException {
         float MAF;
         // get metric speed
         final SpeedCommand speedCommand = new SpeedCommand();
         speedCommand.run(in, out);
         float speed = speedCommand.getMetricSpeed();
 
-        fuelType = "Diesel";
-
-        System.err.println("STATE=" + supMaf + " " + fuelType);
-
-
         //TODO: FIX MAF
-        //TODO: fix everything...
-        supRate = false;
-        if (supRate) {
+        if (this.fuelRateSupport) {
             Log.i(this.TAG, "Fuel rate supported:");
             ConsumptionRateCommand rateCommand = new ConsumptionRateCommand();
             rateCommand.run(in, out);
@@ -94,7 +86,7 @@ public class FuelEconomyObdCommand extends ObdCommand {
             this.kml = 100 / (speed / fuelFlow);
             this.mpg = this.MPG_KML / this.kml;
         }
-        else if (supMaf) {
+        else if (this.mafSupport) {
             //get MAF
             final MassAirFlowCommand mafCommand = new MassAirFlowCommand();
             mafCommand.run(in, out);
@@ -103,41 +95,39 @@ public class FuelEconomyObdCommand extends ObdCommand {
             }
             MAF = (float) mafCommand.getMAF();
             Log.i(this.TAG, "MAF: " + MAF);
-            if (fuelType.equals("Diesel")) {
+            if (this.fuelType == FuelType.DIESEL) {
                 Log.i(this.TAG, "Diesel engine + MAF:");
                 //get engine load
-
                 final EngineLoadObdCommand loadObdCommand = new EngineLoadObdCommand();
                 loadObdCommand.run(in, out);
                 while (!loadObdCommand.isReady()) {
                     Thread.sleep(1);
                 }
                 float engineLoad = loadObdCommand.getPercentage();
-
+                Log.i("ENGINELOAD", "engine load: " + engineLoad);
                 // compute fuel flow L/h
-                float fuelFlow = this.a * (MAF * engineLoad) + this.b;
-                setFlow(fuelFlow);
+                this.flow = this.a * (MAF * engineLoad) + this.b;
+                // setFlow(fuelFlow);
 
                 //compute fuel economy L/100km
-                this.kml = 100 / (speed / fuelFlow);
+                this.kml = 100 / (speed / this.flow);
                 this.mpg = this.MPG_KML / this.kml;
             }
-            else if (fuelType.equals("Gasoline")) {
+            else if (this.fuelType == FuelType.GAS) {
                 Log.i(this.TAG, "Gasoline engine + MAF:");
                 // get l/100km
                 //float mpg= (float) (AIR_FUEL_RATIO*GASOLINE_DENSITY*GRAMS_POUND_CONVERSION*speed*KMH_MPH_CONSTANT)/(SECONDS_HOUR*MAF/*/100*/);
                 // float mpg= (float) (710.7 * speedCommand.getMetricSpeed() / MAF);
-                float fuelFlow = (MAF * this.SECONDS_HOUR) / (this.GASOLINE_DENSITY2 * this.AIR_FUEL_RATIO);
-                setFlow(fuelFlow);
-                this.kml = 100 / (speed / fuelFlow);
+                this.flow = (MAF * this.SECONDS_HOUR) / (this.GASOLINE_DENSITY2 * this.AIR_FUEL_RATIO);
+                //setFlow(fuelFlow);
+                this.kml = 100 / (speed / this.flow);
                 this.mpg = this.MPG_KML / this.kml;
             }
         }
-        else if (!supMaf && fuelType.equals("Gasoline")) {
+        else if (!this.mafSupport && this.fuelType == FuelType.GAS) {
             Log.i(this.TAG, "Alternative MAF + Gasoline:");
             //get alternative MAF
             final RPMCommand engineRpmCommand = new RPMCommand();
-            System.err.println("Here");
             engineRpmCommand.run(in, out);
             while (!engineRpmCommand.isReady()) {
                 Thread.sleep(1);
@@ -146,7 +136,6 @@ public class FuelEconomyObdCommand extends ObdCommand {
             System.err.println(RPM);
             //get manifold pressure
             final IntakeManifoldPressureCommand pressureCommand = new IntakeManifoldPressureCommand();
-            System.err.println(pressureCommand);
             pressureCommand.run(in, out);
             while (!pressureCommand.isReady()) {
                 Thread.sleep(1);
@@ -162,13 +151,12 @@ public class FuelEconomyObdCommand extends ObdCommand {
             MAF = RPM * (MAP / INTAKE_TEMP);
             // get l/100km
 
-            float fuelFlow = MAF * this.SECONDS_HOUR / (this.GASOLINE_DENSITY2 * this.AIR_FUEL_RATIO);
-            System.err.println(fuelFlow);
-
-            setFlow(fuelFlow);
-            this.kml = 100 / (speed / fuelFlow);
+            this.flow = MAF * this.SECONDS_HOUR / (this.GASOLINE_DENSITY2 * this.AIR_FUEL_RATIO);
+            //setFlow(fuelFlow);
+            this.kml = 100 / (speed / this.flow);
             this.mpg = this.MPG_KML / this.kml;
         }
+        super.setReady(true);
     }
 
     @Override

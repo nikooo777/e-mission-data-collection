@@ -95,6 +95,10 @@ public abstract class ObdCommand {
         }
     }
 
+    protected void setReady(boolean readyness) {
+        this.ready = readyness;
+    }
+
     /**
      * Sends the OBD-II request.
      * <p/>

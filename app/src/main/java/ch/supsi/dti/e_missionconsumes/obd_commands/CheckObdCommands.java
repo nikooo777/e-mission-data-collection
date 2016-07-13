@@ -27,6 +27,7 @@ public class CheckObdCommands extends ObdCommand {
     private float MAF;
     private float fuelRate;
     private String VIN;
+    private boolean ready = false;
 
     public Boolean getSupportMAF() {
         return this.supportMAF;
@@ -57,10 +58,13 @@ public class CheckObdCommands extends ObdCommand {
         /*while (!pids0120.isReady() || !pids2140.isReady() || !pids4160.isReady()) {
             Thread.sleep(1);
         }*/
-        Log.i("SUPPORT-0120", pids0120.getName());
-        Log.i("SUPPORT-2140", pids2140.getName());
-        Log.i("SUPPORT-4160", pids4160.getName());
-
+        try {
+            Log.i("SUPPORT-0120", pids0120.getCalculatedResult());
+            Log.i("SUPPORT-2140", pids2140.getCalculatedResult());
+            Log.i("SUPPORT-4160", pids4160.getCalculatedResult());
+        } catch (Exception ex) {
+            ex.printStackTrace(); //TODO: remove
+        }
         //check MAF
         try {
             final MassAirFlowCommand mafCommand = new MassAirFlowCommand();
@@ -143,6 +147,12 @@ public class CheckObdCommands extends ObdCommand {
         } catch (Exception ex) {
             Log.i("CHECK", "Fuel Level not supported");
         }
+        this.ready = true;
+    }
+
+    @Override
+    public boolean isReady() {
+        return this.ready;
     }
 
     public String getEcuName(InputStream in, OutputStream out) {

@@ -78,7 +78,7 @@ public class PhoneSensors implements SensorEventListener {
     LocationListener locationListener = new LocationListener() {
         public void onLocationChanged(Location location) {
             // Called when a new location is found by the network location provider.
-            PhoneSensors.this.speed = location.getSpeed();
+            PhoneSensors.this.speed = location.getSpeed() * 3.6; //speed returned in m/s so we need to convert it
             PhoneSensors.this.altitude = location.getAltitude();
             PhoneSensors.this.coordinates[0] = location.getLatitude();
             PhoneSensors.this.coordinates[1] = location.getLongitude();
@@ -149,9 +149,9 @@ public class PhoneSensors implements SensorEventListener {
     }
 
     public String getAccelerationAsFormattedString() {
-        return "x: " + PhoneSensors.getInstance().getAcceleration()[0] + " m/ss\n" +
-                "y: " + PhoneSensors.getInstance().getAcceleration()[1] + " m/ss\n" +
-                "z: " + PhoneSensors.getInstance().getAcceleration()[2] + " m/ss";
+        return "x: " + ((double) Math.round(PhoneSensors.getInstance().getAcceleration()[0] * 100) / 100) + " m/ss\n" +
+                "y: " + ((double) Math.round(PhoneSensors.getInstance().getAcceleration()[1] * 100)) / 100 + " m/ss\n" +
+                "z: " + ((double) Math.round(PhoneSensors.getInstance().getAcceleration()[2] * 100)) / 100 + " m/ss";
     }
 
     public String getPressureAsFormattedString() {

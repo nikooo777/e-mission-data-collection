@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.UUID;
 
+import ch.supsi.dti.e_missionconsumes.FuelType;
 import ch.supsi.dti.e_missionconsumes.obd_commands.CheckObdCommands;
 import ch.supsi.dti.e_missionconsumes.obd_commands.FuelEconomyObdCommand;
 import obd.commands.SpeedCommand;
@@ -24,17 +25,17 @@ import obd.enums.ObdProtocols;
 import obd.exceptions.NoDataException;
 import obd.exceptions.UnsupportedCommandException;
 
-/**
- * Created by Alan on 18/09/15.
- */
+
 public class CarManager {
     /*HASH KEYS */
-    public static String FUEL_TYPE = "FT";
-    public static String RPM = "RPM";
-    public static String SPEED = "SP";
-    public static String FUEL = "FUEL";
-    public static String TANK = "TK";
-    public static String ODOMETER = "OD";
+    public static final String FUEL_TYPE = "FT";
+    public static final String RPM = "RPM";
+    public static final String SPEED = "SP";
+    public static final String FUEL = "FUEL";
+    public static final String ECONOMY = "FEC";
+    public static final String FUELCONSUMED = "FC";
+    public static final String TANK = "TK";
+    public static final String ODOMETER = "OD";
     /*EOK*/
     public boolean fineMode = true;
     long previousTime = 0;
@@ -43,31 +44,36 @@ public class CarManager {
     float kmODO = 0.f;
     private String devAddress;
     private BluetoothSocket sock;
-    private String fuelType;
-    private String commands;
+    // private String fuelType;
+    private FuelType fuelType = null;
     private boolean connected = false;
     private FuelLevelCommand fuelLevelCommand = new FuelLevelCommand();
     private RPMCommand engineRpmCommand = new RPMCommand();
     private SpeedCommand speedCommand = new SpeedCommand();
     private FuelEconomyObdCommand fuelEconomy;
     private ThrottlePositionCommand throttlePositionObdCommand;
-    private boolean MAFSupport = false;
-    private boolean FuelRateSupport = false;
-    private boolean MAPSupport = false;
-    private boolean FuelLevelSupport = false;
-    private String vim = "NOT_RETRIEVED";
+    private boolean mafSupport = false;
+    private boolean fuelRateSupport = false;
+    private boolean mapSupport = false;
+    private boolean fuelLevelSupport = false;
+    private double consumedFuel = 0;
+    private double fuelAvgEconomy = 0;
 
-    public String getFuelType() {
+    public FuelType getFuelType() {
         return this.fuelType;
     }
 
-    public String getVIM() {
-        return this.vim;
-    }
 
-    public void setFuelType(String ft) {
-        this.fuelEconomy = new FuelEconomyObdCommand(this.fuelType, this.commands);
-        this.fuelType = ft;
+    //this method is called if the use has to manually specify the fuel type
+    public void setFuelType(final FuelType fuelType) {
+        if (fuelType != null) {
+            this.fuelType = fuelType;
+            this.fuelEconomy = new FuelEconomyObdCommand(this.fuelType, this.mafSupport, this.fuelRateSupport, this.mapSupport, this.fuelLevelSupport);
+        }
+        //if it wasn't detected automatically and null was supplied (why?) we throw an ex
+        else if (this.fuelType == null) {
+            throw new RuntimeException("Fuel type must be specified!");
+        }
     }
 
     public boolean isConnected() {
@@ -96,43 +102,44 @@ public class CarManager {
             new LineFeedOffCommand().run(this.sock.getInputStream(), this.sock.getOutputStream());
             new TimeoutCommand(200).run(this.sock.getInputStream(), this.sock.getOutputStream());
             new SelectProtocolCommand(ObdProtocols.AUTO).run(this.sock.getInputStream(), this.sock.getOutputStream());
-            CheckObdCommands check = new CheckObdCommands();
-            check.run(this.sock.getInputStream(), this.sock.getOutputStream());
-            this.MAFSupport = check.getSupportMAF();
-            this.FuelRateSupport = check.getSupportFuelRate();
-            this.MAPSupport = check.getSupportMAP();
-            this.FuelLevelSupport = check.getSupportFuelLevel();
-            String checked = check.toString();
-            this.commands = checked;
-            Log.i(this.getClass().getName(), "commands supported: " + checked);
+            checkSupportedSensors();
+
             VinCommand vinCommand = new VinCommand();
             vinCommand.run(this.sock.getInputStream(), this.sock.getOutputStream());
             String vin = "";
-            while(!vinCommand.isReady())
-            {
+            while (!vinCommand.isReady()) {
                 Thread.sleep(1);
             }
             vin = vinCommand.getCalculatedResult();
-
             String carModel = CarInfo.getInstance().getCarModel(vin);
             if (carModel.isEmpty()) {
                 CarInfo.getInstance().promptCarModel(vin);
             }
 
-            //determine fuel type
-            /*FindFuelTypeCommand fuelTypeObdCommand = new FindFuelTypeCommand();
-            fuelTypeObdCommand.run(sock.getInputStream(), sock.getOutputStream());
-            String type = fuelTypeObdCommand.getFormattedResult();
-            fuelType = type;
-            */
             this.throttlePositionObdCommand = new ThrottlePositionCommand();
             this.connected = true;
             this.fuelType = checkFuelType();
-            this.fuelEconomy = new FuelEconomyObdCommand(this.fuelType, this.commands);
+            if (this.fuelType != null) {
+                this.fuelEconomy = new FuelEconomyObdCommand(this.fuelType, this.mafSupport, this.fuelRateSupport, this.mapSupport, this.fuelLevelSupport);
+            }
         } catch (Exception e) {
             Log.i("Exception", "Bluetooth IO Exception c");
             throw new ConnectionException();
         }
+    }
+
+    private void checkSupportedSensors() throws IOException, InterruptedException {
+        CheckObdCommands check = new CheckObdCommands();
+        check.run(this.sock.getInputStream(), this.sock.getOutputStream());
+        while (!check.isReady()) {
+            Thread.sleep(1);
+        }
+        this.mafSupport = check.getSupportMAF();
+        this.fuelRateSupport = check.getSupportFuelRate();
+        this.mapSupport = check.getSupportMAP();
+        this.fuelLevelSupport = check.getSupportFuelLevel();
+
+        Log.i(this.getClass().getName(), "Sensors supported: maf=" + this.mafSupport + ", fuelrate=" + this.fuelRateSupport + ", map=" + this.mapSupport + ",fuellevel=" + this.fuelLevelSupport);
     }
 
     public HashMap<String, String> queryForParameters() throws ConnectionException {
@@ -148,68 +155,52 @@ public class CarManager {
             throw new ConnectionException();
         }
         HashMap<String, String> query = new HashMap<>();
-        query.put(FUEL_TYPE, this.fuelType);
+        query.put(FUEL_TYPE, this.fuelType.name());
         try {
             this.engineRpmCommand.run(this.sock.getInputStream(), this.sock.getOutputStream());
             this.speedCommand.run(this.sock.getInputStream(), this.sock.getOutputStream());
             rpmResult = this.engineRpmCommand.getFormattedResult();
             speedResult = this.speedCommand.getFormattedResult();
-            if (this.engineRpmCommand.getRPM() >= 1200) {
-                this.throttlePositionObdCommand.run(this.sock.getInputStream(), this.sock.getOutputStream());
-                if (((int) this.throttlePositionObdCommand.getPercentage()) == 0) {
-                    //fuelFlow = "" + 0 + " L/h";
-                    fuelResult = "" + 0 + " LHK";
-                    //cut off
-                    this.fuelEconomy.setFlow(0.f);
-                }
-                else {
-                    this.fuelEconomy.run(this.sock.getInputStream(), this.sock.getOutputStream());
-                    while (!this.fuelEconomy.isReady()) {
-                        Thread.sleep(1);
-                    }
-                    //fuelFlow = "" + String.format("%.3f", this.fuelEconomy.getFlow()) + " L/h";
-                    fuelResult = this.fuelEconomy.getFormattedResult();
-                }
+            if (this.speedCommand.getMetricSpeed() < 1) {
+                //we're idling!
+                fuelResult = 0.6 + " L/h";
+                this.fuelEconomy.setFlow(0.6f);
             }
+            //if (this.engineRpmCommand.getRPM() >= 1200) {
             else {
+                this.throttlePositionObdCommand.run(this.sock.getInputStream(), this.sock.getOutputStream());
+                while (!this.throttlePositionObdCommand.isReady()) {
+                    Thread.sleep(1);
+                }
+                int throttlePosition = ((int) this.throttlePositionObdCommand.getPercentage());
+                Log.i("Throttle", "Throttle position: " + throttlePosition);
+                //TODO: find a fix for this
+                //if (throttlePosition ==0) { // 100 is completely released?
+                //fuelFlow = "" + 0 + " L/h";
+                //    fuelResult = "" + 0 + " LHK";
+                //cut off
+                //   this.fuelEconomy.setFlow(0.f);
+                //  }
+                // else{
                 this.fuelEconomy.run(this.sock.getInputStream(), this.sock.getOutputStream());
                 while (!this.fuelEconomy.isReady()) {
                     Thread.sleep(1);
                 }
                 //fuelFlow = "" + String.format("%.3f", this.fuelEconomy.getFlow()) + " L/h";
                 fuelResult = this.fuelEconomy.getFormattedResult();
+                //  }
             }
-            //managing fuel flow rate = 0 when the car is moving but you are not accelerating
-  /*      if (engineRpmCommand.getRPM() >= 1200) {
-            throttlePositionObdCommand.run(sock.getInputStream(), sock.getOutputStream());
-            if (((int) throttlePositionObdCommand.getPercentage()) == 0) {
-                fuelFlow = "" + 0 + " L/h";
-                fuelResult = "" + 0 + " LHK";
-                //cut off
-                fuelEconomy.setFlow(0.f);
-            } else {
-                fuelEconomy.run(sock.getInputStream(), sock.getOutputStream());
-                fuelFlow = "" + String.format("%.3f", fuelEconomy.getFlow()) + " L/h";
-                fuelResult = fuelEconomy.getFormattedResult();
-            }
-        } else {
-            fuelEconomy.run(sock.getInputStream(), sock.getOutputStream());
-            //fuelFlow = "" + fuelEconomy.getFlow() + " L/h";
-            fuelFlow = "" + String.format("%.3f", fuelEconomy.getFlow()) + " L/h";
-            if (speedCommand.getMetricSpeed() > 1) {
-                fuelResult = fuelEconomy.getFormattedResult();
-            } else {
-                fuelResult = "---";
-            }
-        }
-            fuelLevelCommand.run(sock.getInputStream(), sock.getOutputStream());
-            if (fuelLevelCommand.getFuelLevel() > 1.0f && tankLevel != -1.0f) {
-                finalTankLevel = tankLevel - fuelLevelCommand.getFuelLevel();
-            }*/
-            // float fuelCons = 0.f;
+
             long currentTime = System.currentTimeMillis();
             long deltaTime = currentTime - this.previousTime;
             this.previousTime = currentTime;
+
+            //calculate consumed fuel and avg fuel economy:
+            this.consumedFuel += this.fuelEconomy.getFlow() / 3600 * deltaTime;
+            //consumed fuel divided by distance traveled multiplied by 100 to get liters/100km
+            this.fuelAvgEconomy = this.consumedFuel / this.kmODO * 100;
+
+
             Log.i(this.getClass().getName(), deltaTime + " " + currentTime + " " + this.previousTime);
             this.fineMode = false;
             if (this.fineMode) {
@@ -231,6 +222,8 @@ public class CarManager {
         query.put(FUEL, fuelResult);
         query.put(TANK, String.valueOf(finalTankLevel));
         query.put(ODOMETER, odometer);
+        query.put(ECONOMY, this.fuelAvgEconomy + " l/100km");
+        query.put(FUELCONSUMED, this.consumedFuel + " L");
         return query;
     }
 
@@ -245,18 +238,20 @@ public class CarManager {
         }
     }
 
-    private String checkFuelType() {
+    private FuelType checkFuelType() {
         //new instance of the command fuelType
         FindFuelTypeCommand fuelTypeObdCommand = new FindFuelTypeCommand();
-        String ft = "";
         try {
             fuelTypeObdCommand.run(this.sock.getInputStream(), this.sock.getOutputStream());
+            while (!fuelTypeObdCommand.isReady()) {
+                Thread.sleep(1);
+            }
             String type = fuelTypeObdCommand.getFormattedResult();
             if (type.equals("Gasoline")) {
-                return "Gasoline";
+                return FuelType.GAS;
             }
             else if (type.equals("Diesel")) {
-                return "Diesel";
+                return FuelType.DIESEL;
             }
         } catch (IOException e) {
             Log.i(this.getClass().getName(), "Fuel type: " + "unknown, IOException occurred");
@@ -269,22 +264,22 @@ public class CarManager {
         } catch (UnsupportedCommandException e) {
             Log.i(this.getClass().getName(), "Fuel type: " + "unknown, UnsupportedCommandException occurred");
         }
-        return "";
+        return null;
     }
 
     public boolean hasMAF() {
-        return this.MAFSupport;
+        return this.mafSupport;
     }
 
     public boolean hasMAP() {
-        return this.MAPSupport;
+        return this.mapSupport;
     }
 
     public boolean hasFuelLvl() {
-        return this.FuelLevelSupport;
+        return this.fuelLevelSupport;
     }
 
     public boolean hasFuelRate() {
-        return this.FuelRateSupport;
+        return this.fuelRateSupport;
     }
 }

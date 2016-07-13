@@ -19,7 +19,6 @@ public class CarInfo {
     private final Context context;
     private CarDBHelper carDBHelper = null;
 
-
     private CarInfo(Context context) {
         this.context = context;
         this.carDBHelper = new CarDBHelper(context);

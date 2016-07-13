@@ -40,7 +40,7 @@ public class OBDActivity extends Activity {
     private static final int REQUEST_ACCESS_FINE_LOCATION = 113;
     public static int REQUEST_ENABLE_BT = 1;
     public static String DEV_NAME = "";
-    public String fuelType = "Gasoline";
+    public FuelType fuelType = FuelType.GAS;
     public UpdateParametersThread updateThread = null;
     static OBDMainService mService;
     static boolean mBound = false;
@@ -101,7 +101,7 @@ public class OBDActivity extends Activity {
             Log.i(this.getClass().getName(), DEV_NAME);
             mService.connectToAdapter(DEV_NAME);
             //check fuel type
-            String fuelType = mService.getCarManager().getFuelType();
+            FuelType fuelType = mService.getCarManager().getFuelType();
 
             //check supported operations
             updateSupportedSensors();
@@ -109,17 +109,16 @@ public class OBDActivity extends Activity {
             //let the user select his car type
 
 
-            if (fuelType.length() == 0) {
-                fuelType = fuelDialogType(OBDActivity.this);
-                //  mService.getCarManager().setFuelType(fuelType);
+            if (fuelType == null) {
+                fuelDialogType(OBDActivity.this);
             }
             else {
                 TextView ftv = (TextView) findViewById(R.id.textViewFuelType);
                 ftv.setTextColor(Color.GREEN);
-                if (fuelType.compareTo("Gasoline") == 0) {
+                if (fuelType == FuelType.GAS) {
                     ftv.setTextColor(Color.YELLOW);
                 }
-                ftv.setText(fuelType);
+                ftv.setText(fuelType.name());
                 mService.startOBDRecording();
                 this.updateThread = new UpdateParametersThread();
                 new Thread(this.updateThread).start();
@@ -227,10 +226,15 @@ public class OBDActivity extends Activity {
             TextView rpm = (TextView) findViewById(R.id.textViewRpm);
             TextView speed = (TextView) findViewById(R.id.textViewSpeed);
             TextView fuelFlow = (TextView) findViewById(R.id.textViewFlow);
+            TextView fuelEconomy = (TextView) findViewById(R.id.textViewFuelEco);
             TextView odometer = (TextView) findViewById(R.id.textViewODO);
+            TextView consumedFuel = (TextView) findViewById(R.id.textViewConsumed);
             rpm.setText(pm.get(CarManager.RPM));
             speed.setText(pm.get(CarManager.SPEED));
+            fuelEconomy.setText(pm.get(CarManager.ECONOMY));
             fuelFlow.setText(pm.get(CarManager.FUEL));
+            consumedFuel.setText(pm.get(CarManager.FUELCONSUMED));
+
             odometer.setText(pm.get(CarManager.ODOMETER));
             this.accelerationLabel.setText(PhoneSensors.getInstance().getAccelerationAsFormattedString());
             this.pressureLabel.setText(PhoneSensors.getInstance().getPressureAsFormattedString());
@@ -260,7 +264,7 @@ public class OBDActivity extends Activity {
         frcb.setChecked(fr);
     }
 
-    public synchronized String fuelDialogType(final Context c) {
+    public synchronized FuelType fuelDialogType(final Context c) {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -270,41 +274,33 @@ public class OBDActivity extends Activity {
                     @Override
                     public void onClick(DialogInterface d, int n) {
                         if (n != 0) {
-                            ch.supsi.dti.e_missionconsumes.OBDActivity.this.fuelType = "Diesel";
+                            ch.supsi.dti.e_missionconsumes.OBDActivity.this.fuelType = FuelType.DIESEL;//"Diesel";
                         }
                     }
-                }).setCancelable(false).setPositiveButton("Ok",
-                        new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                int sel = ((AlertDialog) dialog).getListView().getCheckedItemPosition();
-                                if (sel != 0) {
-                                    ch.supsi.dti.e_missionconsumes.OBDActivity.this.fuelType = "Diesel";
-                                }
-                                runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        mService.getCarManager().setFuelType(ch.supsi.dti.e_missionconsumes.OBDActivity.this.fuelType);
-                                        TextView ftv = (TextView) findViewById(R.id.textViewFuelType);
-                                        ftv.setTextColor(Color.GREEN);
-                                        if (ch.supsi.dti.e_missionconsumes.OBDActivity.this.fuelType.compareTo("Gasoline") == 0) {
-                                            ftv.setTextColor(Color.YELLOW);
-                                        }
-                                        ftv.setText(ch.supsi.dti.e_missionconsumes.OBDActivity.this.fuelType);
-                                        mService.startOBDRecording();
-                                        ch.supsi.dti.e_missionconsumes.OBDActivity.this.updateThread = new UpdateParametersThread();
-                                        new Thread(ch.supsi.dti.e_missionconsumes.OBDActivity.this.updateThread).start();
-                                        runOnUiThread(new Runnable() {
-                                            @Override
-                                            public void run() {
-                                                Button b = (Button) findViewById(R.id.button);
-                                                b.setText("Disconnect");
-                                            }
-                                        });
-                                    }
-                                });
-                            }
-                        });
+                }).setCancelable(false).setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        //if selected item was no GAS....
+                        if (((AlertDialog) dialog).getListView().getCheckedItemPosition() != 0) {
+                            ch.supsi.dti.e_missionconsumes.OBDActivity.this.fuelType = FuelType.DIESEL;
+                        }
+
+                        //update the fuel type in the car manager as it was previously null
+                        mService.getCarManager().setFuelType(ch.supsi.dti.e_missionconsumes.OBDActivity.this.fuelType);
+                        TextView fuelTypeTextView = (TextView) findViewById(R.id.textViewFuelType);
+                        fuelTypeTextView.setTextColor(Color.GREEN);
+                        if (ch.supsi.dti.e_missionconsumes.OBDActivity.this.fuelType == FuelType.GAS) {
+                            fuelTypeTextView.setTextColor(Color.YELLOW);
+                        }
+                        fuelTypeTextView.setText(OBDActivity.this.fuelType.name());
+                        mService.startOBDRecording();
+                        ch.supsi.dti.e_missionconsumes.OBDActivity.this.updateThread = new UpdateParametersThread();
+                        new Thread(ch.supsi.dti.e_missionconsumes.OBDActivity.this.updateThread).start();
+
+                        Button b = (Button) findViewById(R.id.button);
+                        b.setText("Disconnect");
+                    }
+                });
                 adb.setTitle(R.string.BeginQuestion);
                 adb.show();
             }

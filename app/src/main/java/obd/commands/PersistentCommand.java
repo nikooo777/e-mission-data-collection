@@ -76,6 +76,7 @@ public abstract class PersistentCommand extends ObdCommand {
             this.rawData = knownValues.get(key);
             this.buffer = knownBuffers.get(key);
             performCalculations();
+            super.setReady(true);
         }
         else {
             super.run(in, out);
