@@ -163,9 +163,20 @@ public class CarManager {
                 }
                 else {
                     this.fuelEconomy.run(this.sock.getInputStream(), this.sock.getOutputStream());
+                    while (!this.fuelEconomy.isReady()) {
+                        Thread.sleep(1);
+                    }
                     //fuelFlow = "" + String.format("%.3f", this.fuelEconomy.getFlow()) + " L/h";
                     fuelResult = this.fuelEconomy.getFormattedResult();
                 }
+            }
+            else {
+                this.fuelEconomy.run(this.sock.getInputStream(), this.sock.getOutputStream());
+                while (!this.fuelEconomy.isReady()) {
+                    Thread.sleep(1);
+                }
+                //fuelFlow = "" + String.format("%.3f", this.fuelEconomy.getFlow()) + " L/h";
+                fuelResult = this.fuelEconomy.getFormattedResult();
             }
             //managing fuel flow rate = 0 when the car is moving but you are not accelerating
   /*      if (engineRpmCommand.getRPM() >= 1200) {
