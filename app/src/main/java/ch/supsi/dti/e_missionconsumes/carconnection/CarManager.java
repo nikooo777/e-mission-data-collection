@@ -108,10 +108,11 @@ public class CarManager {
             VinCommand vinCommand = new VinCommand();
             vinCommand.run(this.sock.getInputStream(), this.sock.getOutputStream());
             String vin = "";
-            while (vin.isEmpty()) {
-                Thread.sleep(10);
-                vin = vinCommand.getCalculatedResult();
+            while(!vinCommand.isReady())
+            {
+                Thread.sleep(1);
             }
+            vin = vinCommand.getCalculatedResult();
 
             String carModel = CarInfo.getInstance().getCarModel(vin);
             if (carModel.isEmpty()) {
