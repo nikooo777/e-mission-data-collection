@@ -88,9 +88,9 @@ public class CarManager {
     }
 
     private void checkThrottle(int rpm, float speed, int throttlePosition) {
-        if (rpm < 1200 && speed < 1 && throttleWorking) {
+        if (rpm < 1200 && speed < 1 && this.throttleWorking) {
             if (throttlePosition > 90) {
-                throttleWorking = false;
+                this.throttleWorking = false;
             }
         }
     }
@@ -173,27 +173,30 @@ public class CarManager {
             rpmResult = this.engineRpmCommand.getFormattedResult();
             speedResult = this.speedCommand.getFormattedResult();
             int throttlePosition = ((int) this.throttlePositionObdCommand.getPercentage());
-            checkThrottle(engineRpmCommand.getRPM(), speedCommand.getMetricSpeed(), throttlePosition);
+            checkThrottle(this.engineRpmCommand.getRPM(), this.speedCommand.getMetricSpeed(), throttlePosition);
             //check if we're idling
             if (this.speedCommand.getMetricSpeed() < 1) {
                 //we're idling!
                 fuelResult = 2 + " L/h";
                 this.fuelEconomy.setFlow(2f);
             }
-            else if (throttleWorking && this.engineRpmCommand.getRPM() >= 1200 && throttlePosition == 0) {
+            else if (this.throttleWorking && this.engineRpmCommand.getRPM() >= 1200 && throttlePosition == 0) {
                 fuelResult = "" + 0 + " l/100km";
-                fuelEconomy.setFlow(0);
+                this.fuelEconomy.setFlow(0);
             }
             else {
-                fuelResult = fuelEconomy.getFormattedResult();
+                fuelResult = this.fuelEconomy.getFormattedResult();
             }
 
             //fuelFlow = "" + String.format("%.3f", this.fuelEconomy.getFlow()) + " L/h";
-            fuelResult = this.fuelEconomy.getFormattedResult();
+            //fuelResult = this.fuelEconomy.getFormattedResult();
             //  }
             // }
 
             long currentTime = System.currentTimeMillis();
+            if (this.previousTime == 0) {
+                this.previousTime = currentTime;
+            }
             long deltaTime = currentTime - this.previousTime;
             this.previousTime = currentTime;
 
@@ -215,7 +218,8 @@ public class CarManager {
             this.consumedFuel += (this.fuelEconomy.getFlow() / 3600.) * (deltaTime / 1000.);
             //consumed fuel divided by distance traveled multiplied by 100 to get liters/100km
             this.fuelAvgEconomy = (this.consumedFuel / this.kmODO) * 100;
-            Log.i("FuelFlow",fuelEconomy.getFlow()+" l/h");
+            Log.i("FuelFlow", this.fuelEconomy.getFlow() + " l/h");
+            Log.i("deltaTime", deltaTime + " ms");
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -226,8 +230,8 @@ public class CarManager {
         query.put(FUEL, fuelResult);
         query.put(TANK, String.valueOf(finalTankLevel));
         query.put(ODOMETER, odometer);
-        query.put(ECONOMY, this.fuelAvgEconomy + " l/100km");
-        query.put(FUELCONSUMED, this.consumedFuel + " L");
+        query.put(ECONOMY, String.format("%.3f l/100km", this.fuelAvgEconomy));
+        query.put(FUELCONSUMED, String.format("%.3f L", this.consumedFuel));
         return query;
     }
 

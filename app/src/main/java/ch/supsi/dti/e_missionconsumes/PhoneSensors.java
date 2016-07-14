@@ -155,18 +155,18 @@ public class PhoneSensors implements SensorEventListener {
     }
 
     public String getPressureAsFormattedString() {
-        return getPressure() + " mBar";
+        return String.format("%.2f mBar", getPressure());
     }
 
     public String getSpeedAsFormattedString() {
-        return getSpeed() + " km/h";
+        return String.format("%.2f km/h", getSpeed());
     }
 
     public String getAltitudeAsFormattedString() {
-        return getAltitude() + " msl";
+        return String.format("%.0f msl", getAltitude());
     }
 
     public String getCoordinatesAsFormattedString() {
-        return String.format("%.4f/%.4f", getLatitude(), getLongitude());
+        return String.format("lat: %.4f\nlong: %.4f", getLatitude(), getLongitude());
     }
 }

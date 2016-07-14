@@ -116,9 +116,9 @@
             android:text="@string/fuel_type"
             android:id="@+id/textViewFuelType"
             android:layout_centerHorizontal="true"
+            android:gravity="bottom"
             android:layout_alignParentBottom="true"
-            android:layout_below="@+id/SplitLine_hor3"
-            android:gravity="bottom"/>
+            android:layout_alignTop="@+id/SplitLine_hor3"/>
 
         <TextView
             android:layout_width="wrap_content"
@@ -409,7 +409,8 @@
             android:background="#c0c0c0"
             android:layout_below="@+id/labelCoordinates"
             android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true"/>
+            android:layout_alignParentStart="true"
+            android:layout_marginTop="52dp"/>
 
         <TextView
             android:layout_width="match_parent"
@@ -438,12 +439,16 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:textAppearance="?android:attr/textAppearanceMedium"
-            android:text="lat/long"
+            android:text="lat\nlong"
             android:id="@+id/textViewCoordinates"
             android:layout_below="@+id/textViewAltitude"
+            android:lines="2"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true"
+            android:layout_toEndOf="@+id/textViewFuelType"
             android:layout_alignLeft="@+id/textViewAltitude"
             android:layout_alignStart="@+id/textViewAltitude"
-            android:layout_above="@+id/SplitLine_hor3"/>
+            android:layout_alignBottom="@+id/SplitLine_hor3"/>
 
     </RelativeLayout>
 </ScrollView>
