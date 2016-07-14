@@ -196,7 +196,7 @@ public class CarManager {
             this.previousTime = currentTime;
 
             //calculate consumed fuel and avg fuel economy:
-            this.consumedFuel += this.fuelEconomy.getFlow() / 3600 * deltaTime;
+            this.consumedFuel += this.fuelEconomy.getFlow() / 3600. * (deltaTime / 1000.);
             //consumed fuel divided by distance traveled multiplied by 100 to get liters/100km
             this.fuelAvgEconomy = this.consumedFuel / this.kmODO * 100;
 
