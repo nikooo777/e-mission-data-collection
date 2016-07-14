@@ -58,6 +58,7 @@ public class CarManager {
     private boolean fuelLevelSupport = false;
     private double consumedFuel = 0;
     private double fuelAvgEconomy = 0;
+    private boolean throttleWorking = true;
 
     public FuelType getFuelType() {
         return this.fuelType;
@@ -84,6 +85,14 @@ public class CarManager {
         this.devAddress = _devAddress;
         this.fineMode = !coarseMode;
         connectToAdapter(_devAddress);
+    }
+
+    private void checkThrottle(int rpm, float speed, int throttlePosition) {
+        if (rpm < 1200 && speed < 1 && throttleWorking) {
+            if (throttlePosition > 90) {
+                throttleWorking = false;
+            }
+        }
     }
 
     public void connectToAdapter(String _devAddress) throws ConnectionException {
@@ -159,47 +168,34 @@ public class CarManager {
         try {
             this.engineRpmCommand.run(this.sock.getInputStream(), this.sock.getOutputStream());
             this.speedCommand.run(this.sock.getInputStream(), this.sock.getOutputStream());
+            this.throttlePositionObdCommand.run(this.sock.getInputStream(), this.sock.getOutputStream());
+            this.fuelEconomy.run(this.sock.getInputStream(), this.sock.getOutputStream());
             rpmResult = this.engineRpmCommand.getFormattedResult();
             speedResult = this.speedCommand.getFormattedResult();
+            int throttlePosition = ((int) this.throttlePositionObdCommand.getPercentage());
+            checkThrottle(engineRpmCommand.getRPM(), speedCommand.getMetricSpeed(), throttlePosition);
+            //check if we're idling
             if (this.speedCommand.getMetricSpeed() < 1) {
                 //we're idling!
-                fuelResult = 0.6 + " L/h";
-                this.fuelEconomy.setFlow(0.6f);
+                fuelResult = 2 + " L/h";
+                this.fuelEconomy.setFlow(2f);
             }
-            //if (this.engineRpmCommand.getRPM() >= 1200) {
+            else if (throttleWorking && this.engineRpmCommand.getRPM() >= 1200 && throttlePosition == 0) {
+                fuelResult = "" + 0 + " l/100km";
+                fuelEconomy.setFlow(0);
+            }
             else {
-                this.throttlePositionObdCommand.run(this.sock.getInputStream(), this.sock.getOutputStream());
-                while (!this.throttlePositionObdCommand.isReady()) {
-                    Thread.sleep(1);
-                }
-                int throttlePosition = ((int) this.throttlePositionObdCommand.getPercentage());
-                Log.i("Throttle", "Throttle position: " + throttlePosition);
-                //TODO: find a fix for this
-                //if (throttlePosition ==0) { // 100 is completely released?
-                //fuelFlow = "" + 0 + " L/h";
-                //    fuelResult = "" + 0 + " LHK";
-                //cut off
-                //   this.fuelEconomy.setFlow(0.f);
-                //  }
-                // else{
-                this.fuelEconomy.run(this.sock.getInputStream(), this.sock.getOutputStream());
-                while (!this.fuelEconomy.isReady()) {
-                    Thread.sleep(1);
-                }
-                //fuelFlow = "" + String.format("%.3f", this.fuelEconomy.getFlow()) + " L/h";
-                fuelResult = this.fuelEconomy.getFormattedResult();
-                //  }
+                fuelResult = fuelEconomy.getFormattedResult();
             }
+
+            //fuelFlow = "" + String.format("%.3f", this.fuelEconomy.getFlow()) + " L/h";
+            fuelResult = this.fuelEconomy.getFormattedResult();
+            //  }
+            // }
 
             long currentTime = System.currentTimeMillis();
             long deltaTime = currentTime - this.previousTime;
             this.previousTime = currentTime;
-
-            //calculate consumed fuel and avg fuel economy:
-            this.consumedFuel += this.fuelEconomy.getFlow() / 3600. * (deltaTime / 1000.);
-            //consumed fuel divided by distance traveled multiplied by 100 to get liters/100km
-            this.fuelAvgEconomy = this.consumedFuel / this.kmODO * 100;
-
 
             Log.i(this.getClass().getName(), deltaTime + " " + currentTime + " " + this.previousTime);
             this.fineMode = false;
@@ -214,9 +210,17 @@ public class CarManager {
                 this.kmODO += ((double) avgSpeed) * ((double) deltaTime) / 1000 / 3600;
                 odometer = "" + String.format("%.3f", this.kmODO) + " Km";
             }
+
+            //calculate consumed fuel and avg fuel economy:
+            this.consumedFuel += (this.fuelEconomy.getFlow() / 3600.) * (deltaTime / 1000.);
+            //consumed fuel divided by distance traveled multiplied by 100 to get liters/100km
+            this.fuelAvgEconomy = (this.consumedFuel / this.kmODO) * 100;
+            Log.i("FuelFlow",fuelEconomy.getFlow()+" l/h");
+
         } catch (Exception e) {
             e.printStackTrace();
         }
+
         query.put(RPM, rpmResult);
         query.put(SPEED, speedResult);
         query.put(FUEL, fuelResult);

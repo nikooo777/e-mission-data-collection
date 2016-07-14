@@ -81,9 +81,8 @@ public class FuelEconomyObdCommand extends ObdCommand {
             while (!rateCommand.isReady()) {
                 Thread.sleep(1);
             }
-            float fuelFlow = rateCommand.getLitersPerHour();
-            setFlow(fuelFlow);
-            this.kml = 100 / (speed / fuelFlow);
+            flow = rateCommand.getLitersPerHour();
+            this.kml = 100 / (speed / flow);
             this.mpg = this.MPG_KML / this.kml;
         }
         else if (this.mafSupport) {

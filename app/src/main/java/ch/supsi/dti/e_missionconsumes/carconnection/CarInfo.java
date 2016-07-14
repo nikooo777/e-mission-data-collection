@@ -56,12 +56,12 @@ public class CarInfo {
 
     public void promptCarModel(final String vin) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this.context);
-        builder.setTitle("Title");
+        builder.setTitle("Input your car model");
 
         // Set up the input
         final EditText input = new EditText(this.context);
         // Specify the type of input expected; this, for example, sets the input as a password, and will mask the text
-        input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+        input.setInputType(InputType.TYPE_CLASS_TEXT);
         builder.setView(input);
 
         // Set up the buttons
