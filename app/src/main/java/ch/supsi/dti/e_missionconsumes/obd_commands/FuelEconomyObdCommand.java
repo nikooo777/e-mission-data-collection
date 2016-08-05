@@ -72,9 +72,8 @@ public class FuelEconomyObdCommand extends ObdCommand {
         final SpeedCommand speedCommand = new SpeedCommand();
         speedCommand.run(in, out);
         float speed = speedCommand.getMetricSpeed();
-
-        //TODO: FIX MAF
-        if (this.fuelRateSupport) {
+boolean fuelRateSupport = false; //TODO: remove
+        if (fuelRateSupport) {
             Log.i(this.TAG, "Fuel rate supported:");
             ConsumptionRateCommand rateCommand = new ConsumptionRateCommand();
             rateCommand.run(in, out);

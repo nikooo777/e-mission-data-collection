@@ -1,6 +1,7 @@
 package ch.supsi.dti.e_missionconsumes;
 
 import android.Manifest;
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.bluetooth.BluetoothAdapter;
@@ -12,6 +13,7 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v4.app.ActivityCompat;
@@ -36,8 +38,8 @@ import ch.supsi.dti.e_missionconsumes.carconnection.ConnectionException;
  * TODO: fix fine/coarse mode input
  */
 public class OBDActivity extends Activity {
-    private static final int REQUEST_WRITE_STORAGE = 112;
-    private static final int REQUEST_ACCESS_FINE_LOCATION = 113;
+    private static final int REQUEST_MULTIPLE_PERMISSIONS = 112;
+    //private static final int REQUEST_ACCESS_FINE_LOCATION = 113;
     public static int REQUEST_ENABLE_BT = 1;
     public static String DEV_NAME = "";
     public FuelType fuelType = FuelType.GAS;
@@ -50,6 +52,7 @@ public class OBDActivity extends Activity {
     private TextView gpsAltitudeLabel;
     private TextView coordinatesLabel;
 
+    @TargetApi(Build.VERSION_CODES.M)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -64,17 +67,28 @@ public class OBDActivity extends Activity {
         this.gpsSpeedLabel = (TextView) findViewById(R.id.textViewGPSSpeed);
         this.gpsAltitudeLabel = (TextView) findViewById(R.id.textViewAltitude);
         this.coordinatesLabel = (TextView) findViewById(R.id.textViewCoordinates);
-        boolean hasPermission = (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED);
+        boolean hasPermission = (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) & (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED);
         if (!hasPermission) {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_WRITE_STORAGE);
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE,Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_MULTIPLE_PERMISSIONS);
         }
-        hasPermission = (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED);
+        else
+        {
+            PhoneSensors.init(this);
+        }
+        /*hasPermission = (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED);
         if (!hasPermission) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_ACCESS_FINE_LOCATION);
-        }
-
-        PhoneSensors.init(this);
+        }*/
         CarInfo.init(this);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        if (requestCode == REQUEST_MULTIPLE_PERMISSIONS) {
+            PhoneSensors.init(this);
+        }
     }
 
     private ServiceConnection mConnection = new ServiceConnection() {

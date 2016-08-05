@@ -3,7 +3,6 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
-      <module fileurl="file://$PROJECT_DIR$/e-mission-consumes.iml" filepath="$PROJECT_DIR$/e-mission-consumes.iml" />
       <module fileurl="file://$PROJECT_DIR$/tesi.iml" filepath="$PROJECT_DIR$/tesi.iml" />
     </modules>
   </component>

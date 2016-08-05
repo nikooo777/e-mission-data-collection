@@ -55,13 +55,10 @@ public class CheckObdCommands extends ObdCommand {
         final AvailablePidsCommand_01_20 pids0120 = new AvailablePidsCommand_01_20();
         final AvailablePidsCommand_21_40 pids2140 = new AvailablePidsCommand_21_40();
         final AvailablePidsCommand_41_60 pids4160 = new AvailablePidsCommand_41_60();
-        /*while (!pids0120.isReady() || !pids2140.isReady() || !pids4160.isReady()) {
-            Thread.sleep(1);
-        }*/
         try {
-            Log.i("SUPPORT-0120", pids0120.getCalculatedResult());
-            Log.i("SUPPORT-2140", pids2140.getCalculatedResult());
-            Log.i("SUPPORT-4160", pids4160.getCalculatedResult());
+            Log.i("SUPPORT-0120: ", pids0120.getCalculatedResult());
+            Log.i("SUPPORT-2140: ", pids2140.getCalculatedResult());
+            Log.i("SUPPORT-4160: ", pids4160.getCalculatedResult());
         } catch (Exception ex) {
             ex.printStackTrace(); //TODO: remove
         }
