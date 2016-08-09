@@ -3,6 +3,9 @@ package ch.supsi.dti.e_missionconsumes;
 import android.util.Log;
 import android.widget.Toast;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.HashMap;
 
 import ch.supsi.dti.e_missionconsumes.carconnection.ConnectionException;
@@ -10,6 +13,7 @@ import ch.supsi.dti.e_missionconsumes.output.OutputFile;
 
 /**
  * Created by Alan on 17/09/15.
+ * Modified by Niko
  */
 public class RecordingThread implements Runnable {
     private static HashMap<String, String> current = null;
@@ -37,7 +41,7 @@ public class RecordingThread implements Runnable {
     }
 
     public static void stopRecording() {
-        thread.RUN = false;
+        RUN = false;
         OutputFile.closeFile();
     }
 
@@ -52,22 +56,31 @@ public class RecordingThread implements Runnable {
             }
             else {
                 try {
+                    JSONObject jo = new JSONObject();
                     HashMap<String, String> carInfo = this.service.getCarManager().queryForParameters();
-                    //String res = "";
-                    StringBuilder res = new StringBuilder();
+                    //StringBuilder res = new StringBuilder();
+
                     for (String key : carInfo.keySet()) {
-                        //res += key + "=" + carInfo.get(key) + ", ";
-                        res.append(key + "=" + carInfo.get(key) + ", ");
+                        jo.put(key, carInfo.get(key));
+                        //res.append(key + "=" + carInfo.get(key) + ", ");
                     }
-                    //res.append("ACC=" + PhoneSensors.getInstance().getAcceleration() + ", ");
-                    res.append(PhoneSensors.getInstance().toString() + ", ");
+                    jo.put("dev-ac", PhoneSensors.getInstance().getAcceleration());
+                    jo.put("dev-speed", PhoneSensors.getInstance().getSpeed());
+                    jo.put("dev-press", PhoneSensors.getInstance().getPressure());
+                    jo.put("dev-alt", PhoneSensors.getInstance().getAltitude());
+                    jo.put("dev-lat", PhoneSensors.getInstance().getLatitude());
+                    jo.put("dev-long", PhoneSensors.getInstance().getLongitude());
+
+                    //res.append(PhoneSensors.getInstance().toString() + ", ");
                     storeCurrentValues(carInfo);
-                    OutputFile.saveData(res.toString());
-                    Log.i(this.getClass().getName(), "Storing car data: " + res);
+                    OutputFile.saveData(jo.toString());
+                    Log.i(this.getClass().getName(), "Storing car data: " + jo.toString());
                 } catch (ConnectionException e) {
                     e.printStackTrace();
                     Toast.makeText(this.service.getApplicationContext(), "ConnectionException: Car is not connected", Toast.LENGTH_LONG).show();
                     Log.i(this.getClass().getName(), "ConnectionException: Car is not connected");
+                } catch (JSONException e) {
+                    e.printStackTrace();
                 }
             }
             try {
