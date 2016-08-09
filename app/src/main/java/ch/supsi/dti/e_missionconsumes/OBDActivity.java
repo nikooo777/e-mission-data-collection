@@ -16,6 +16,7 @@ import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.provider.Settings;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
@@ -26,6 +27,8 @@ import android.widget.CheckBox;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Set;
@@ -51,6 +54,7 @@ public class OBDActivity extends Activity {
     private TextView gpsSpeedLabel;
     private TextView gpsAltitudeLabel;
     private TextView coordinatesLabel;
+    public static String token = null;
 
     @TargetApi(Build.VERSION_CODES.M)
     @Override
@@ -58,7 +62,8 @@ public class OBDActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Log.i(this.getClass().getName(), "OBDActivity started");
-        if (mBound == false) {
+        token = md5(Settings.Secure.getString(this.getContentResolver(), Settings.Secure.ANDROID_ID));
+        if (!mBound) {
             Intent intent = new Intent(this, OBDMainService.class);
             bindService(intent, this.mConnection, Context.BIND_AUTO_CREATE);
         }
@@ -67,12 +72,11 @@ public class OBDActivity extends Activity {
         this.gpsSpeedLabel = (TextView) findViewById(R.id.textViewGPSSpeed);
         this.gpsAltitudeLabel = (TextView) findViewById(R.id.textViewAltitude);
         this.coordinatesLabel = (TextView) findViewById(R.id.textViewCoordinates);
-        boolean hasPermission = (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) & (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED);
+        boolean hasPermission = ContextCompat.checkSelfPermission(this, Manifest.permission.INTERNET) == PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED;
         if (!hasPermission) {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE,Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_MULTIPLE_PERMISSIONS);
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.INTERNET}, REQUEST_MULTIPLE_PERMISSIONS);
         }
-        else
-        {
+        else {
             PhoneSensors.init(this);
         }
         /*hasPermission = (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED);
@@ -320,5 +324,25 @@ public class OBDActivity extends Activity {
             }
         });
         return this.fuelType;
+    }
+
+    private String md5(String in) {
+        MessageDigest digest;
+        try {
+            digest = MessageDigest.getInstance("MD5");
+            digest.reset();
+            digest.update(in.getBytes());
+            byte[] a = digest.digest();
+            int len = a.length;
+            StringBuilder sb = new StringBuilder(len << 1);
+            for (int i = 0; i < len; i++) {
+                sb.append(Character.forDigit((a[i] & 0xf0) >> 4, 16));
+                sb.append(Character.forDigit(a[i] & 0x0f, 16));
+            }
+            return sb.toString();
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 }

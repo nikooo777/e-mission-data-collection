@@ -18,6 +18,7 @@ import obd.enums.AvailableCommandNames;
 
 /**
  * Created by Patrick on 17/06/2015.
+ * Rewritten by Niko
  */
 public class FuelEconomyObdCommand extends ObdCommand {
     private final float b = 0.6635f;
@@ -72,7 +73,7 @@ public class FuelEconomyObdCommand extends ObdCommand {
         final SpeedCommand speedCommand = new SpeedCommand();
         speedCommand.run(in, out);
         float speed = speedCommand.getMetricSpeed();
-boolean fuelRateSupport = false; //TODO: remove
+        boolean fuelRateSupport = false; //TODO: remove
         if (fuelRateSupport) {
             Log.i(this.TAG, "Fuel rate supported:");
             ConsumptionRateCommand rateCommand = new ConsumptionRateCommand();
@@ -80,8 +81,8 @@ boolean fuelRateSupport = false; //TODO: remove
             while (!rateCommand.isReady()) {
                 Thread.sleep(1);
             }
-            flow = rateCommand.getLitersPerHour();
-            this.kml = 100 / (speed / flow);
+            this.flow = rateCommand.getLitersPerHour();
+            this.kml = 100 / (speed / this.flow);
             this.mpg = this.MPG_KML / this.kml;
         }
         else if (this.mafSupport) {

@@ -1,10 +1,14 @@
 package ch.supsi.dti.e_missionconsumes;
 
+import android.annotation.TargetApi;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.Network;
 import android.net.NetworkInfo;
 import android.net.wifi.WifiManager;
+import android.os.Build;
 import android.util.Log;
 
 import java.io.DataOutputStream;
@@ -21,11 +25,28 @@ import java.net.URL;
  * Created by Niko on 6/27/2016.
  */
 public class WifiSync extends BroadcastReceiver {
+    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     @Override
     public void onReceive(Context context, Intent intent) {
         NetworkInfo info = intent.getParcelableExtra(WifiManager.EXTRA_NETWORK_INFO);
-
-        if (info != null && info.isConnected()) {
+        ConnectivityManager connectivityManager = ((ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE));
+        boolean isWifiConnected = false;
+        Network[] networks = connectivityManager.getAllNetworks();
+        if (networks == null) {
+            isWifiConnected = false;
+        }
+        else {
+            for (Network network : networks) {
+                NetworkInfo netInfo = connectivityManager.getNetworkInfo(network);
+                if (info != null && info.getType() == ConnectivityManager.TYPE_WIFI) {
+                    if (netInfo.isAvailable() && netInfo.isConnected()) {
+                        isWifiConnected = true;
+                        break;
+                    }
+                }
+            }
+        }
+        if (info != null && info.isConnected() && isWifiConnected) {
             File d = new File(Constants.FILE_DEF_DIR);
             String[] list = d.list(new FilenameFilter() {
                 @Override
@@ -55,6 +76,7 @@ public class WifiSync extends BroadcastReceiver {
                 Log.i(this.getClass().getName(), "uploading: " + fullPath);
             }
         }
+
     }
 
     /*
@@ -89,7 +111,8 @@ public class WifiSync extends BroadcastReceiver {
             try {
                 Log.i(this.getClass().getName(), "File is upload-able");
                 FileInputStream fileInputStream = new FileInputStream(selectedFile);
-                URL url = new URL("http://emission.storni.info/emissionupload.php");
+                //
+                URL url = new URL("http://emission.storni.info/emissionupload.php?token=" + OBDActivity.token);
                 connection = (HttpURLConnection) url.openConnection();
                 connection.setDoInput(true);
                 connection.setDoOutput(true);
@@ -131,7 +154,6 @@ public class WifiSync extends BroadcastReceiver {
 
                 dataOutputStream.writeBytes(lineEnd);
                 dataOutputStream.writeBytes(twoHyphens + boundary + twoHyphens + lineEnd);
-
                 serverResponseCode = connection.getResponseCode();
                 String serverResponseMessage = connection.getResponseMessage();
 

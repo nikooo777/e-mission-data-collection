@@ -18,6 +18,7 @@ import obd.commands.protocol.AvailablePidsCommand_41_60;
 
 /**
  * Created by Patrick on 24/08/2015.
+ * Rewritten by Niko
  */
 public class CheckObdCommands extends ObdCommand {
     private Boolean supportMAF = false;
