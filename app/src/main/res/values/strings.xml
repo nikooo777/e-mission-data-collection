@@ -106,6 +106,7 @@
     <string name="gps_altitude">GPS Altitude</string>
     <string name="gps_speed">GPS Speed</string>
     <string name="coordinates">Coordinates</string>
+    <string name="lat_nlong">lat\nlong</string>
 
     <string-array name="string_array_trips">
         <item>School</item>

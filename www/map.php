@@ -28,7 +28,9 @@
         });
 		var flightPlanCoordinates =new Array();	
 		$.ajax({
-			url:'test.txt',
+			url:<?php 
+			echo htmlspecialchars($_GET["file"]); 
+			?>;,
 			success: function (data){
 				var re=/\r\n|\n\r|\n|\r/g;
 				var arrayofLines=data.replace(re,"\n").split("\n");

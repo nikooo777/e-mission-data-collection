@@ -6,6 +6,8 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -20,10 +22,12 @@ import android.provider.Settings;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -54,6 +58,8 @@ public class OBDActivity extends Activity {
     private TextView gpsSpeedLabel;
     private TextView gpsAltitudeLabel;
     private TextView coordinatesLabel;
+    private EditText tokenText;
+
     public static String token = null;
 
     @TargetApi(Build.VERSION_CODES.M)
@@ -63,6 +69,19 @@ public class OBDActivity extends Activity {
         setContentView(R.layout.activity_main);
         Log.i(this.getClass().getName(), "OBDActivity started");
         token = md5(Settings.Secure.getString(this.getContentResolver(), Settings.Secure.ANDROID_ID));
+        tokenText = (EditText)findViewById(R.id.textToken);
+        tokenText.setText(token,TextView.BufferType.EDITABLE);
+        tokenText.setTextIsSelectable(true);
+        final Context context = this;
+        tokenText.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ClipboardManager clipboard = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
+                ClipData clip = ClipData.newPlainText(token,token);
+                clipboard.setPrimaryClip(clip);
+                Toast.makeText(getBaseContext(), "Token copied to clipboard", Toast.LENGTH_LONG).show();
+            }
+        });
         if (!mBound) {
             Intent intent = new Intent(this, OBDMainService.class);
             bindService(intent, this.mConnection, Context.BIND_AUTO_CREATE);
@@ -339,7 +358,8 @@ public class OBDActivity extends Activity {
                 sb.append(Character.forDigit((a[i] & 0xf0) >> 4, 16));
                 sb.append(Character.forDigit(a[i] & 0x0f, 16));
             }
-            return sb.toString();
+
+            return sb.substring(0,8);
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
         }

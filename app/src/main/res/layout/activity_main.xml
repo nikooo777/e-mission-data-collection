@@ -65,11 +65,11 @@
             android:textAppearance="?android:attr/textAppearanceLarge"
             android:text="@string/Rpm"
             android:id="@+id/rpmLabel"
-            android:layout_below="@+id/switchMode"
             android:layout_alignParentLeft="true"
             android:layout_alignParentStart="true"
             android:layout_alignRight="@+id/speedLabel"
-            android:layout_alignEnd="@+id/speedLabel"/>
+            android:layout_alignEnd="@+id/speedLabel"
+            android:layout_below="@+id/button"/>
 
         <TextView
             android:layout_width="wrap_content"
@@ -118,7 +118,7 @@
             android:layout_centerHorizontal="true"
             android:gravity="bottom"
             android:layout_alignParentBottom="true"
-            android:layout_alignTop="@+id/SplitLine_hor3"/>
+            android:layout_alignTop="@+id/SplitLine_hor4"/>
 
         <TextView
             android:layout_width="wrap_content"
@@ -155,19 +155,6 @@
             android:layout_alignTop="@+id/labelConsumed"
             android:layout_alignLeft="@+id/textViewODO"
             android:layout_alignStart="@+id/textViewODO"/>
-
-        <Switch
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/modeSwitch"
-            android:id="@+id/switchMode"
-            android:checked="true"
-            android:textOn="fine"
-            android:textOff="coarse"
-            android:showText="true"
-            android:maxLines="1"
-            android:layout_below="@+id/button"
-            android:layout_centerHorizontal="true"/>
 
         <View
             android:id="@+id/SplitLine_hor1"
@@ -343,7 +330,8 @@
             android:layout_alignBottom="@+id/FuelRateSupport"
             android:layout_toEndOf="@+id/textViewConsumed"
             android:layout_alignLeft="@+id/textViewFuelLevel"
-            android:layout_alignStart="@+id/textViewFuelLevel"/>
+            android:layout_alignStart="@+id/textViewFuelLevel"
+            android:layout_toRightOf="@+id/textViewConsumed"/>
 
         <TextView
             android:layout_width="wrap_content"
@@ -408,9 +396,9 @@
             android:layout_height="2dp"
             android:background="#c0c0c0"
             android:layout_below="@+id/labelCoordinates"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true"
-            android:layout_marginTop="52dp"/>
+            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true"
+            android:layout_marginTop="33dp"/>
 
         <TextView
             android:layout_width="match_parent"
@@ -439,7 +427,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:textAppearance="?android:attr/textAppearanceMedium"
-            android:text="lat\nlong"
+            android:text="@string/lat_nlong"
             android:id="@+id/textViewCoordinates"
             android:layout_below="@+id/textViewAltitude"
             android:lines="2"
@@ -448,7 +436,46 @@
             android:layout_toEndOf="@+id/textViewFuelType"
             android:layout_alignLeft="@+id/textViewAltitude"
             android:layout_alignStart="@+id/textViewAltitude"
+            android:layout_toRightOf="@+id/textViewFuelType"
             android:layout_alignBottom="@+id/SplitLine_hor3"/>
+
+        <EditText
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/textToken"
+            android:singleLine="true"
+            android:enabled="true"
+            android:inputType="none"
+            android:textIsSelectable="true"
+            android:hint="token"
+            android:selectAllOnFocus="false"
+            android:textColor="@android:color/holo_orange_light"
+            android:layout_below="@+id/SplitLine_hor3"
+            android:layout_toRightOf="@+id/textView"
+            android:layout_above="@+id/textViewFuelType"
+            android:layout_alignRight="@+id/textViewCoordinates"
+            android:layout_alignEnd="@+id/textViewCoordinates"
+            android:gravity="center_vertical"/>
+        <View
+            android:id="@+id/SplitLine_hor4"
+            android:layout_width="match_parent"
+            android:layout_height="2dp"
+            android:background="#c0c0c0"
+            android:layout_below="@+id/SplitLine_hor3"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true"
+            android:layout_marginTop="51dp"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:text="Web Token"
+            android:id="@+id/textView"
+            android:layout_alignBottom="@+id/textToken"
+            android:layout_below="@+id/SplitLine_hor3"
+            android:layout_alignLeft="@+id/SplitLine_hor3"
+            android:layout_alignStart="@+id/SplitLine_hor3"
+            android:gravity="center_vertical"/>
 
     </RelativeLayout>
 </ScrollView>

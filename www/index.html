@@ -5,6 +5,10 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+	<div style="position: fixed; z-index: -99; width: 100%; height: 100%">
+		<iframe frameborder="0" height="100%" width="100%" src="https://youtube.com/embed/0pXYp72dwl0?autoplay=1&controls=0&showinfo=0&autohide=1&loop=1&disablekb=0&playlist=0pXYp72dwl0&rel=0">
+		</iframe>
+	</div>
     <title>E-Mission portal</title>
 
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
@@ -16,12 +20,44 @@
 	   <!-- Custom styles for this template -->
     <link href="css/justified-nav.css" rel="stylesheet">
 	<link href="css/personalized.css" rel="stylesheet">
+	<script>
+function loadData()
+{
+	//document.getElementById("scanned-item-img").innerHTML="";
+	//document.getElementById("scanned-item-txt").innerHTML="";
+	if ($("#formGroupInputLarge").val() == 0)
+	{
+		txt="<p class='text-danger'>Input your token first!</p>"
+		document.getElementById("results-location").innerHTML=txt;
+	}
+	else
+	{
+		txt="<table class='table table-bordered table-condensed'><tr><td>Vehicle Identification Number</td><td>Trip date</td><td>Link to MAP</td></tr>";
+		txt2="";
+		$.getJSON("dbparser.php?token=" + $("#formGroupInputLarge").val(), function(result)
+		{
+			$.each(result, function(i, field)
+			{
+				var myScan = result.trip;
+				console.log(myScan);
+				$.each(myScan,function(j,result2)
+				{
+					console.log(result2);
+					txt2=txt2+"<tr><td>"+result2.VIN+"</td><td>" +result2.date+"</td><td><a href=\"map.html?file="+result2.filename+"\" class=\"btn btn-success\">Map</a></td></tr>";
+				});
+			});
+			txt=txt+txt2+"</table>";
+			document.getElementById("results-location").innerHTML=txt;
+		});  
+	}        
+}
+</script>
   </head>
   <header>
 	
   </header>
   <body>
-    <div class="container">
+	<div class="container">
 	      <!-- The justified navigation menu is meant for single line per list item.
            Multiple lines will require custom code not provided by Bootstrap. -->
       <div class="masthead">
@@ -37,7 +73,7 @@
       </div>
 
 	<div class="container-fluid">
-		<form class="form-horizontal">
+		<!--<form class="form-horizontal">-->
 			<div class="row"><div class="col-xs-12" style="height:50px;"></div></div>
 			<div class="row">
 				<div class="form-group form-group-md">
@@ -45,12 +81,16 @@
 					<div class="col-sm-8">
 						<input class="form-control" type="text" id="formGroupInputLarge" placeholder="00000000000000000000000000000000">
 					</div>
-					<button type="submit" class="btn btn-warning col-sm-2">Pull profile</button>
+					<button class="btn btn-warning col-sm-2" onclick="loadData()">Pull profile</button>
 				</div>
 			</div>
-		</form>
+			<div class="row">
+			<div id="results-location" class="col-md-5">
+			</div>
+		</div>
+		<!--</form>-->
     </div> <!-- /container -->
-
+	
     <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
     <!-- Include all compiled plugins (below), or include individual files as needed -->
