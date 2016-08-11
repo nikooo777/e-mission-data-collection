@@ -9,3 +9,7 @@
     /* inline-block space fix */
     margin-right:-4px;
 }
+.text-centered
+{
+	text-align:center;
+}

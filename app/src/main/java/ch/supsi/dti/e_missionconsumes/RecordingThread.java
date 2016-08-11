@@ -71,7 +71,7 @@ public class RecordingThread implements Runnable {
                         jaa.put(a);
                     }
 
-                    jo.put("dev-ac", ja);
+                    jo.put("dev-ac", jaa);
                     jo.put("dev-speed", PhoneSensors.getInstance().getSpeed());
                     jo.put("dev-press", PhoneSensors.getInstance().getPressure());
                     jo.put("dev-alt", PhoneSensors.getInstance().getAltitude());
