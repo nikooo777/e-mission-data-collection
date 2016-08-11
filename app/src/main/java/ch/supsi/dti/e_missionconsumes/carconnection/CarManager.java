@@ -34,7 +34,7 @@ public class CarManager {
     public static final String FUEL = "FUEL";
     public static final String ECONOMY = "FEC";
     public static final String FUELCONSUMED = "FC";
-    public static final String TANK = "TK";
+    //public static final String TANK = "TK";
     public static final String ODOMETER = "OD";
     /*EOK*/
     public boolean fineMode = true;
@@ -228,7 +228,7 @@ public class CarManager {
         query.put(RPM, rpmResult);
         query.put(SPEED, speedResult);
         query.put(FUEL, fuelResult);
-        query.put(TANK, String.valueOf(finalTankLevel));
+        //query.put(TANK, String.valueOf(finalTankLevel));
         query.put(ODOMETER, odometer);
         query.put(ECONOMY, String.format("%.3f l/100km", this.fuelAvgEconomy));
         query.put(FUELCONSUMED, String.format("%.3f L", this.consumedFuel));

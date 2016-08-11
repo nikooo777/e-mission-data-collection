@@ -3,6 +3,7 @@ package ch.supsi.dti.e_missionconsumes;
 import android.util.Log;
 import android.widget.Toast;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -57,6 +58,8 @@ public class RecordingThread implements Runnable {
             else {
                 try {
                     JSONObject jo = new JSONObject();
+                    JSONArray jaa = new JSONArray();
+                    JSONArray jac = new JSONArray();
                     HashMap<String, String> carInfo = this.service.getCarManager().queryForParameters();
                     //StringBuilder res = new StringBuilder();
 
@@ -64,12 +67,17 @@ public class RecordingThread implements Runnable {
                         jo.put(key, carInfo.get(key));
                         //res.append(key + "=" + carInfo.get(key) + ", ");
                     }
-                    jo.put("dev-ac", PhoneSensors.getInstance().getAcceleration());
+                    for (double a : PhoneSensors.getInstance().getAcceleration()) {
+                        jaa.put(a);
+                    }
+
+                    jo.put("dev-ac", ja);
                     jo.put("dev-speed", PhoneSensors.getInstance().getSpeed());
                     jo.put("dev-press", PhoneSensors.getInstance().getPressure());
                     jo.put("dev-alt", PhoneSensors.getInstance().getAltitude());
-                    jo.put("dev-lat", PhoneSensors.getInstance().getLatitude());
-                    jo.put("dev-long", PhoneSensors.getInstance().getLongitude());
+                    jac.put(PhoneSensors.getInstance().getLatitude());
+                    jac.put(PhoneSensors.getInstance().getLongitude());
+                    jo.put("dev-coords", jac);
 
                     //res.append(PhoneSensors.getInstance().toString() + ", ");
                     storeCurrentValues(carInfo);
