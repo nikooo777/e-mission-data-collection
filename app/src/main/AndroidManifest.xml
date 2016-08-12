@@ -29,8 +29,9 @@
             android:name="ch.supsi.dti.e_missionconsumes.OBDMainService"
             android:enabled="true"
             android:exported="true"/>
+
         <receiver android:name="ch.supsi.dti.e_missionconsumes.WifiSync">
-            <intent-filter android:priority="100">
+            <intent-filter>
                 <action android:name="android.net.wifi.STATE_CHANGE"/>
             </intent-filter>
         </receiver>

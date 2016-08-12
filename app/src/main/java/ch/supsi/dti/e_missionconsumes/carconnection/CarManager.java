@@ -59,11 +59,15 @@ public class CarManager {
     private double consumedFuel = 0;
     private double fuelAvgEconomy = 0;
     private boolean throttleWorking = true;
+    private String vehicleIdentificationNumber = "UNDEFINED";
 
     public FuelType getFuelType() {
         return this.fuelType;
     }
 
+    public String getVIN() {
+        return this.vehicleIdentificationNumber;
+    }
 
     //this method is called if the use has to manually specify the fuel type
     public void setFuelType(final FuelType fuelType) {
@@ -115,14 +119,14 @@ public class CarManager {
 
             VinCommand vinCommand = new VinCommand();
             vinCommand.run(this.sock.getInputStream(), this.sock.getOutputStream());
-            String vin = "";
+            this.vehicleIdentificationNumber = "";
             while (!vinCommand.isReady()) {
                 Thread.sleep(1);
             }
-            vin = vinCommand.getCalculatedResult();
-            String carModel = CarInfo.getInstance().getCarModel(vin);
+            this.vehicleIdentificationNumber = vinCommand.getCalculatedResult();
+            String carModel = CarInfo.getInstance().getCarModel(this.vehicleIdentificationNumber);
             if (carModel.isEmpty()) {
-                CarInfo.getInstance().promptCarModel(vin);
+                CarInfo.getInstance().promptCarModel(this.vehicleIdentificationNumber);
             }
 
             this.throttlePositionObdCommand = new ThrottlePositionCommand();

@@ -22,7 +22,6 @@ import android.provider.Settings;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -31,8 +30,6 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Set;
@@ -40,6 +37,7 @@ import java.util.Set;
 import ch.supsi.dti.e_missionconsumes.carconnection.CarInfo;
 import ch.supsi.dti.e_missionconsumes.carconnection.CarManager;
 import ch.supsi.dti.e_missionconsumes.carconnection.ConnectionException;
+import ch.supsi.dti.e_missionconsumes.output.Tools;
 
 /**
  * TODO: fix fine/coarse mode input
@@ -68,16 +66,15 @@ public class OBDActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Log.i(this.getClass().getName(), "OBDActivity started");
-        token = md5(Settings.Secure.getString(this.getContentResolver(), Settings.Secure.ANDROID_ID));
-        tokenText = (EditText)findViewById(R.id.textToken);
-        tokenText.setText(token,TextView.BufferType.EDITABLE);
-        tokenText.setTextIsSelectable(true);
-        final Context context = this;
-        tokenText.setOnClickListener(new View.OnClickListener() {
+        token = Tools.shortMd5(Settings.Secure.getString(this.getContentResolver(), Settings.Secure.ANDROID_ID));
+        this.tokenText = (EditText) findViewById(R.id.textToken);
+        this.tokenText.setText(token, TextView.BufferType.EDITABLE);
+        this.tokenText.setTextIsSelectable(true);
+        this.tokenText.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 ClipboardManager clipboard = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
-                ClipData clip = ClipData.newPlainText(token,token);
+                ClipData clip = ClipData.newPlainText(token, token);
                 clipboard.setPrimaryClip(clip);
                 Toast.makeText(getBaseContext(), "Token copied to clipboard", Toast.LENGTH_LONG).show();
             }
@@ -343,26 +340,5 @@ public class OBDActivity extends Activity {
             }
         });
         return this.fuelType;
-    }
-
-    private String md5(String in) {
-        MessageDigest digest;
-        try {
-            digest = MessageDigest.getInstance("MD5");
-            digest.reset();
-            digest.update(in.getBytes());
-            byte[] a = digest.digest();
-            int len = a.length;
-            StringBuilder sb = new StringBuilder(len << 1);
-            for (int i = 0; i < len; i++) {
-                sb.append(Character.forDigit((a[i] & 0xf0) >> 4, 16));
-                sb.append(Character.forDigit(a[i] & 0x0f, 16));
-            }
-
-            return sb.substring(0,8);
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        }
-        return null;
     }
 }

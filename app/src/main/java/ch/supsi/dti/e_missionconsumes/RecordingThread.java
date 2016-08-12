@@ -21,6 +21,7 @@ public class RecordingThread implements Runnable {
     public OBDMainService service;
     public static boolean RUN = false;
     public static RecordingThread thread;
+    private boolean tripInfoStored = false;
 
     public RecordingThread(OBDMainService _service) {
         this.service = _service;
@@ -63,6 +64,14 @@ public class RecordingThread implements Runnable {
                     HashMap<String, String> carInfo = this.service.getCarManager().queryForParameters();
                     //StringBuilder res = new StringBuilder();
 
+                    if (!this.tripInfoStored) {
+                        this.tripInfoStored = true;
+                        JSONObject tripInfoData = new JSONObject();
+                        tripInfoData.put("VIN", this.service.getCarManager().getVIN());
+                        tripInfoData.put("timestamp", System.currentTimeMillis());
+                        tripInfoData.put("fuelType", this.service.getCarManager().getFuelType().name());
+                    }
+                    jo.put("timestamp", System.currentTimeMillis());
                     for (String key : carInfo.keySet()) {
                         jo.put(key, carInfo.get(key));
                         //res.append(key + "=" + carInfo.get(key) + ", ");
@@ -97,6 +106,7 @@ public class RecordingThread implements Runnable {
                 e.printStackTrace();
             }
         }
-        Log.i(this.getClass().getName(), "Stop Recording");
+        Log.i(this.getClass().getName(), "Stopped Recording");
+        this.tripInfoStored = false;
     }
 }

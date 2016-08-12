@@ -12,6 +12,7 @@ import ch.supsi.dti.e_missionconsumes.Constants;
 
 /**
  * Created by Alan on 18/09/15.
+ * Modified by Niko
  */
 public class OutputFile {
 
@@ -37,7 +38,6 @@ public class OutputFile {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
     }
 
 
@@ -54,16 +54,13 @@ public class OutputFile {
 
 
     public static void saveData(String value) {
-
         if (RECORDING) {
             try {
-                output.write(System.currentTimeMillis() + "\t" + value + "\n");
+                output.write(value + System.lineSeparator());
                 output.flush();
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
     }
-
-
 }

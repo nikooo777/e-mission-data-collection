@@ -9,6 +9,7 @@ import android.net.Network;
 import android.net.NetworkInfo;
 import android.net.wifi.WifiManager;
 import android.os.Build;
+import android.provider.Settings;
 import android.util.Log;
 
 import java.io.DataOutputStream;
@@ -21,32 +22,50 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+import ch.supsi.dti.e_missionconsumes.output.Tools;
+
 /**
  * Created by Niko on 6/27/2016.
  */
 public class WifiSync extends BroadcastReceiver {
+    private String token = null;
+    private static volatile long lastUpdated = 0;
+
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     @Override
     public void onReceive(Context context, Intent intent) {
-        NetworkInfo info = intent.getParcelableExtra(WifiManager.EXTRA_NETWORK_INFO);
-        ConnectivityManager connectivityManager = ((ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE));
-        boolean isWifiConnected = false;
-        Network[] networks = connectivityManager.getAllNetworks();
-        if (networks == null) {
-            isWifiConnected = false;
-        }
-        else {
-            for (Network network : networks) {
-                NetworkInfo netInfo = connectivityManager.getNetworkInfo(network);
-                if (info != null && info.getType() == ConnectivityManager.TYPE_WIFI) {
-                    if (netInfo.isAvailable() && netInfo.isConnected()) {
-                        isWifiConnected = true;
-                        break;
+        System.out.println(intent);
+        synchronized (WifiSync.class) {
+            NetworkInfo info = intent.getParcelableExtra(WifiManager.EXTRA_NETWORK_INFO);
+            ConnectivityManager connectivityManager = ((ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE));
+            boolean isWifiConnected = false;
+            Network[] networks = connectivityManager.getAllNetworks();
+            this.token = Tools.shortMd5(Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID));
+            if (networks == null) {
+                isWifiConnected = false;
+            }
+            else {
+                for (Network network : networks) {
+                    NetworkInfo netInfo = connectivityManager.getNetworkInfo(network);
+                    if (info != null && info.getType() == ConnectivityManager.TYPE_WIFI) {
+                        if (netInfo.isAvailable() && netInfo.isConnected()) {
+                            isWifiConnected = true;
+                            break;
+                        }
                     }
                 }
             }
-        }
-        if (info != null && info.isConnected() && isWifiConnected) {
+            if (!isWifiConnected) {
+                return;
+            }
+            if (System.currentTimeMillis() - lastUpdated > 30000) // android presents an issue where the state change is fired multiple times, we can filter this behavior
+            {
+                lastUpdated = System.currentTimeMillis();
+            }
+            else {
+                return;
+            }
+            //if (info != null && info.isConnected()) {
             File d = new File(Constants.FILE_DEF_DIR);
             String[] list = d.list(new FilenameFilter() {
                 @Override
@@ -64,8 +83,11 @@ public class WifiSync extends BroadcastReceiver {
                 new Thread(new Runnable() {
                     @Override
                     public void run() {
-                        int responseCode = uploadFile(fullPath);
-                        //rename the file on success
+                        int responseCode = -1;
+                        while (responseCode != 200) {
+                            responseCode = uploadFile(fullPath);
+                            //rename the file on success
+                        }
                         if (responseCode == 200) {
                             File file = new File(fullPath);
                             file.renameTo(new File(fullPath + ".stored"));
@@ -76,13 +98,12 @@ public class WifiSync extends BroadcastReceiver {
                 Log.i(this.getClass().getName(), "uploading: " + fullPath);
             }
         }
-
     }
 
     /*
-    *http://www.coderefer.com/android-upload-file-to-server/
-    * */
-
+    * original implementation
+    * http://www.coderefer.com/android-upload-file-to-server/
+    **/
     public int uploadFile(final String selectedFilePath) {
 
         int serverResponseCode = 0;
@@ -112,7 +133,7 @@ public class WifiSync extends BroadcastReceiver {
                 Log.i(this.getClass().getName(), "File is upload-able");
                 FileInputStream fileInputStream = new FileInputStream(selectedFile);
                 //
-                URL url = new URL("http://emission.storni.info/emissionupload.php?token=" + OBDActivity.token);
+                URL url = new URL("http://emission.storni.info/emissionupload.php?token=" + this.token);
                 connection = (HttpURLConnection) url.openConnection();
                 connection.setDoInput(true);
                 connection.setDoOutput(true);
