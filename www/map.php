@@ -60,9 +60,9 @@
 						'<div id="bodyContent">'+
 						'<p><b>Speed: </b>'+ tripData['dev-speed'] +'km/h</p>'+
 						'<p><b>Travelled Distance: </b>'+ tripData.OD +' km</p>'+
-						'<p><b>Consumed Fuel: </b>'+ tripData.FC +' L</p>'+
-						'<p><b>Avg fuel rate: </b>'+ tripData.FUEL +' L/100km</p>'+
-						'<p><b>Instant fuel rate: </b>'+ tripData.FEC +'</p>'+
+						'<p><b>Consumed Fuel: </b>'+ tripData.FC +'</p>'+
+						'<p><b>Avg fuel rate: </b>'+ tripData.FEC +'</p>'+
+						'<p><b>Instant fuel rate: </b>'+ tripData.FUEL +'</p>'+
 						'<p><b>RPM: </b>'+ tripData.RPM +'</p>'+
 						'</div>'+
 						'</div>';

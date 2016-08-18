@@ -8,10 +8,6 @@ import java.io.OutputStream;
 
 import obd.commands.ObdCommand;
 import obd.commands.control.VinCommand;
-import obd.commands.engine.MassAirFlowCommand;
-import obd.commands.fuel.ConsumptionRateCommand;
-import obd.commands.fuel.FuelLevelCommand;
-import obd.commands.pressure.IntakeManifoldPressureCommand;
 import obd.commands.protocol.AvailablePidsCommand_01_20;
 import obd.commands.protocol.AvailablePidsCommand_21_40;
 import obd.commands.protocol.AvailablePidsCommand_41_60;
@@ -25,8 +21,6 @@ public class CheckObdCommands extends ObdCommand {
     private Boolean supportFuelRate = false;
     private Boolean supportFuelLevel = false;
     private Boolean supportMAP = false;
-    private float MAF;
-    private float fuelRate;
     private String VIN;
     private boolean ready = false;
 
@@ -53,18 +47,37 @@ public class CheckObdCommands extends ObdCommand {
     @Override
     public void run(InputStream in, OutputStream out) throws IOException, InterruptedException {
         //check MAF
+        Log.i("SUPPORT-PIDS: ", "checking pid support");
         final AvailablePidsCommand_01_20 pids0120 = new AvailablePidsCommand_01_20();
         final AvailablePidsCommand_21_40 pids2140 = new AvailablePidsCommand_21_40();
         final AvailablePidsCommand_41_60 pids4160 = new AvailablePidsCommand_41_60();
+        pids0120.run(in, out);
+        pids2140.run(in, out);
+        pids4160.run(in, out);
         try {
-            Log.i("SUPPORT-0120: ", pids0120.getCalculatedResult());
-            Log.i("SUPPORT-2140: ", pids2140.getCalculatedResult());
-            Log.i("SUPPORT-4160: ", pids4160.getCalculatedResult());
+            //Log.i("SUPPORT-0120: ", pids0120.getCalculatedResult());
+            //Log.i("SUPPORT-2140: ", pids2140.getCalculatedResult());
+            //Log.i("SUPPORT-4160: ", pids4160.getCalculatedResult());
+            long MAFPID = 1 << 16; //10
+            long MAPPID = 1 << 21; //0B
+            long FLSPID = 1 << 17; //2F
+            long FRSPID = 1 << 2;  //5E
+            long pids0129_val = Long.parseLong(pids0120.getCalculatedResult().substring(0, 8), 16);
+            long pids2140_val = Long.parseLong(pids2140.getCalculatedResult().substring(0, 8), 16);
+            long pids4160_val = Long.parseLong(pids4160.getCalculatedResult().substring(0, 8), 16);
+            Log.i("SUPPORT-MAF: ", "val: " + (MAFPID & pids0129_val));
+            Log.i("SUPPORT-MAP: ", "val: " + (MAPPID & pids0129_val));
+            Log.i("SUPPORT-FL: ", "val: " + (FLSPID & pids2140_val));
+            Log.i("SUPPORT-FR: ", "val: " + (FRSPID & pids4160_val));
+            this.supportMAF = (MAFPID & pids0129_val) > 0;
+            this.supportMAP = (MAPPID & pids0129_val) > 0;
+            this.supportFuelLevel = (FLSPID & pids2140_val) > 0;
+            this.supportFuelRate = (FRSPID & pids4160_val) > 0;
         } catch (Exception ex) {
             ex.printStackTrace(); //TODO: remove
         }
         //check MAF
-        try {
+       /* try {
             final MassAirFlowCommand mafCommand = new MassAirFlowCommand();
             mafCommand.run(in, out);
             while (!mafCommand.isReady()) {
@@ -82,8 +95,8 @@ public class CheckObdCommands extends ObdCommand {
         } catch (Exception e) {
             this.supportMAF = false;
             Log.i("CHECK", "MAF not supported");
-        }
-        try {
+        }*/
+       /* try {
             final IntakeManifoldPressureCommand mapCommand = new IntakeManifoldPressureCommand();
             mapCommand.run(in, out);
             while (!mapCommand.isReady()) {
@@ -100,8 +113,8 @@ public class CheckObdCommands extends ObdCommand {
         } catch (Exception e) {
             Log.i("CHECK", "MAP not supported");
             this.supportMAP = false;
-        }
-        try {
+        }*/
+       /* try {
             final ConsumptionRateCommand fuelRate = new ConsumptionRateCommand();
             fuelRate.run(in, out);
             this.fuelRate = fuelRate.getLitersPerHour();
@@ -116,7 +129,7 @@ public class CheckObdCommands extends ObdCommand {
         } catch (Exception e) {
             this.supportFuelRate = false;
             Log.i("CHECK", "Fuel rate  not supported");
-        }
+        }*/
         try {
             final VinCommand vinCommand = new VinCommand();
             vinCommand.run(in, out);
@@ -132,7 +145,7 @@ public class CheckObdCommands extends ObdCommand {
             this.VIN = getEcuName(in, out);
             Log.i("CHECK", "VIN unknown");
         }
-        try {
+        /*try {
             final FuelLevelCommand flc = new FuelLevelCommand();
             flc.run(in, out);
             this.supportFuelLevel = Float.compare(flc.getFuelLevel(), 0f) != 0;
@@ -144,7 +157,7 @@ public class CheckObdCommands extends ObdCommand {
             }
         } catch (Exception ex) {
             Log.i("CHECK", "Fuel Level not supported");
-        }
+        }*/
         this.ready = true;
     }
 

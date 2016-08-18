@@ -13,6 +13,8 @@ import android.widget.EditText;
 
 /**
  * Created by Niko on 7/4/2016.
+ * this class manages the connection between the SQLite database and the application.
+ * It allows for storage and retrieval of the car make and model against its vehicle identification number
  */
 public class CarInfo {
     private static CarInfo instance;

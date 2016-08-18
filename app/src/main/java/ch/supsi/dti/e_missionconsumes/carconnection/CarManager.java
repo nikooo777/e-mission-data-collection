@@ -6,6 +6,8 @@ import android.bluetooth.BluetoothSocket;
 import android.util.Log;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.UUID;
 
@@ -17,7 +19,6 @@ import obd.commands.control.VinCommand;
 import obd.commands.engine.RPMCommand;
 import obd.commands.engine.ThrottlePositionCommand;
 import obd.commands.fuel.FindFuelTypeCommand;
-import obd.commands.fuel.FuelLevelCommand;
 import obd.commands.protocol.LineFeedOffCommand;
 import obd.commands.protocol.SelectProtocolCommand;
 import obd.commands.protocol.TimeoutCommand;
@@ -27,27 +28,21 @@ import obd.exceptions.UnsupportedCommandException;
 
 
 public class CarManager {
-    /*HASH KEYS */
-    public static final String FUEL_TYPE = "FT";
+    //HASH KEYS
     public static final String RPM = "RPM";
     public static final String SPEED = "SP";
     public static final String FUEL = "FUEL";
     public static final String ECONOMY = "FEC";
     public static final String FUELCONSUMED = "FC";
-    //public static final String TANK = "TK";
     public static final String ODOMETER = "OD";
-    /*EOK*/
-    public boolean fineMode = true;
+
     long previousTime = 0;
     long previousSpeed = 0;
-    float previousFlow = 0;
     float kmODO = 0.f;
     private String devAddress;
     private BluetoothSocket sock;
-    // private String fuelType;
     private FuelType fuelType = null;
     private boolean connected = false;
-    private FuelLevelCommand fuelLevelCommand = new FuelLevelCommand();
     private RPMCommand engineRpmCommand = new RPMCommand();
     private SpeedCommand speedCommand = new SpeedCommand();
     private FuelEconomyObdCommand fuelEconomy;
@@ -69,7 +64,7 @@ public class CarManager {
         return this.vehicleIdentificationNumber;
     }
 
-    //this method is called if the use has to manually specify the fuel type
+    //this method is called if the user has to manually specify the fuel type
     public void setFuelType(final FuelType fuelType) {
         if (fuelType != null) {
             this.fuelType = fuelType;
@@ -85,13 +80,9 @@ public class CarManager {
         return this.connected;
     }
 
-    public void connectToAdapter(String _devAddress, boolean coarseMode) throws ConnectionException {
-        this.devAddress = _devAddress;
-        this.fineMode = !coarseMode;
-        connectToAdapter(_devAddress);
-    }
-
+    //this method is useful to check whether or not the throttle sensor is working as intended
     private void checkThrottle(int rpm, float speed, int throttlePosition) {
+        //if the RPM is below 1200, we're standing still and the throttle position is at > 90% then the sensor is either broken or doesn't work as intended
         if (rpm < 1200 && speed < 1 && this.throttleWorking) {
             if (throttlePosition > 90) {
                 this.throttleWorking = false;
@@ -99,26 +90,41 @@ public class CarManager {
         }
     }
 
-    public void connectToAdapter(String _devAddress) throws ConnectionException {
-        this.devAddress = _devAddress;
+    private void resetVals() {
         this.kmODO = 0.f;
-        Log.i(getClass().getName(), "entering connectToAdapter");
+        this.previousTime = 0;
+        this.previousSpeed = 0;
+        this.fuelType = null;
+        this.mafSupport = false;
+        this.fuelRateSupport = false;
+        this.mapSupport = false;
+        this.fuelLevelSupport = false;
+        this.consumedFuel = 0;
+        this.fuelAvgEconomy = 0;
+        this.throttleWorking = true;
+        this.vehicleIdentificationNumber = "UNDEFINED";
+    }
+
+    public void connectToAdapter(String devAddress) throws ConnectionException {
+        resetVals();
+        this.devAddress = devAddress;
         BluetoothAdapter btAdapter = BluetoothAdapter.getDefaultAdapter();
         BluetoothDevice device = btAdapter.getRemoteDevice(this.devAddress);
         UUID uuid = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
         // creation and connection of a bluetooth socket
         try {
-            BluetoothSocket socket = device.createInsecureRfcommSocketToServiceRecord(uuid);
-            socket.connect();
-            this.sock = socket;
-            new obd.commands.protocol.EchoOffCommand().run(this.sock.getInputStream(), this.sock.getOutputStream());
-            new LineFeedOffCommand().run(this.sock.getInputStream(), this.sock.getOutputStream());
-            new TimeoutCommand(200).run(this.sock.getInputStream(), this.sock.getOutputStream());
-            new SelectProtocolCommand(ObdProtocols.AUTO).run(this.sock.getInputStream(), this.sock.getOutputStream());
+            this.sock = device.createInsecureRfcommSocketToServiceRecord(uuid);
+            this.sock.connect();
+            InputStream in = this.sock.getInputStream();
+            OutputStream out = this.sock.getOutputStream();
+            new obd.commands.protocol.EchoOffCommand().run(in, out);
+            new LineFeedOffCommand().run(in, out);
+            new TimeoutCommand(200).run(in, out);
+            new SelectProtocolCommand(ObdProtocols.AUTO).run(in, out);
             checkSupportedSensors();
 
             VinCommand vinCommand = new VinCommand();
-            vinCommand.run(this.sock.getInputStream(), this.sock.getOutputStream());
+            vinCommand.run(in, out);
             this.vehicleIdentificationNumber = "";
             while (!vinCommand.isReady()) {
                 Thread.sleep(1);
@@ -159,31 +165,32 @@ public class CarManager {
         String rpmResult = null;
         String speedResult = null;
         String fuelResult = "" + -1 + " L/100km";
-        //String fuelFlow = "" + -1 + " L/h";
         String odometer = "0 Km";
-        // String consumption = "0 L";
-        // float tankLevel = 0.f;
-        float finalTankLevel = 0.f;
+
         if (!this.connected) {
             throw new ConnectionException();
         }
+
         HashMap<String, String> query = new HashMap<>();
-        query.put(FUEL_TYPE, this.fuelType.name());
         try {
-            this.engineRpmCommand.run(this.sock.getInputStream(), this.sock.getOutputStream());
-            this.speedCommand.run(this.sock.getInputStream(), this.sock.getOutputStream());
-            this.throttlePositionObdCommand.run(this.sock.getInputStream(), this.sock.getOutputStream());
-            this.fuelEconomy.run(this.sock.getInputStream(), this.sock.getOutputStream());
-            rpmResult = this.engineRpmCommand.getFormattedResult();
+            InputStream in = this.sock.getInputStream();
+            OutputStream out = this.sock.getOutputStream();
+            this.engineRpmCommand.run(in, out);
+            this.speedCommand.run(in, out);
+            this.throttlePositionObdCommand.run(in, out);
+            this.fuelEconomy.run(in, out);
+            rpmResult = this.engineRpmCommand.getRPM() + "";
             speedResult = this.speedCommand.getFormattedResult();
             int throttlePosition = ((int) this.throttlePositionObdCommand.getPercentage());
             checkThrottle(this.engineRpmCommand.getRPM(), this.speedCommand.getMetricSpeed(), throttlePosition);
+
             //check if we're idling
             if (this.speedCommand.getMetricSpeed() < 1) {
                 //we're idling!
                 fuelResult = 2 + " L/h";
                 this.fuelEconomy.setFlow(2f);
             }
+            //check if we're on cutoff state
             else if (this.throttleWorking && this.engineRpmCommand.getRPM() >= 1200 && throttlePosition == 0) {
                 fuelResult = "" + 0 + " l/100km";
                 this.fuelEconomy.setFlow(0);
@@ -191,11 +198,6 @@ public class CarManager {
             else {
                 fuelResult = this.fuelEconomy.getFormattedResult();
             }
-
-            //fuelFlow = "" + String.format("%.3f", this.fuelEconomy.getFlow()) + " L/h";
-            //fuelResult = this.fuelEconomy.getFormattedResult();
-            //  }
-            // }
 
             long currentTime = System.currentTimeMillis();
             if (this.previousTime == 0) {
@@ -205,18 +207,13 @@ public class CarManager {
             this.previousTime = currentTime;
 
             Log.i(this.getClass().getName(), deltaTime + " " + currentTime + " " + this.previousTime);
-            this.fineMode = false;
-            if (this.fineMode) {
-                this.kmODO += ((float) this.speedCommand.getMetricSpeed()) * ((float) deltaTime) / 1000 / 3600;
-                odometer = "" + String.format("%.3f", this.kmODO) + " Km";
-            }
-            else {
-                long currSpeed = this.speedCommand.getMetricSpeed();
-                long avgSpeed = (currSpeed + this.previousSpeed) / 2;
-                this.previousSpeed = currSpeed;
-                this.kmODO += ((double) avgSpeed) * ((double) deltaTime) / 1000 / 3600;
-                odometer = "" + String.format("%.3f", this.kmODO) + " Km";
-            }
+
+            long currSpeed = this.speedCommand.getMetricSpeed();
+            long avgSpeed = (currSpeed + this.previousSpeed) / 2;
+            this.previousSpeed = currSpeed;
+            //calculate the travelled distance
+            this.kmODO += ((double) avgSpeed) * ((double) deltaTime) / 1000 / 3600;
+            odometer = "" + String.format("%.3f", this.kmODO) + " Km";
 
             //calculate consumed fuel and avg fuel economy:
             this.consumedFuel += (this.fuelEconomy.getFlow() / 3600.) * (deltaTime / 1000.);

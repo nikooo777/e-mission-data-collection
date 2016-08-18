@@ -13,17 +13,16 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
-import android.widget.Toast;
 
 import java.util.Arrays;
 
 /**
  * Created by Niko on 6/30/2016.
+ * This class is responsible of reading the sensors of a phone
  */
 public class PhoneSensors implements SensorEventListener {
     private static PhoneSensors instance = null;
     private final Context context;
-    //private double acceleration = -1;
     private double speed = -1;
     private double pressure = -1; //hPa
     private double altitude = Double.MIN_VALUE; //NL wouldn't like -1
@@ -41,23 +40,16 @@ public class PhoneSensors implements SensorEventListener {
 
         // Register the listener with the Location Manager to receive location updates
         this.locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
-       // if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-        //    ActivityCompat.requestPermissions((Activity) context, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 114);
-        //}
 
-        if (ActivityCompat.checkSelfPermission(context,Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             this.locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this.locationListener);
-            Toast.makeText(context, "WE ARE LIVE", Toast.LENGTH_LONG).show();
         }
-        else
-        {
+        else {
             ActivityCompat.requestPermissions((Activity) context, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 114);
-            Toast.makeText(context, "WE ARE NOT LIVE", Toast.LENGTH_LONG).show();
         }
 
         //accelerometer sensor
         this.senSensorManager = (SensorManager) context.getSystemService(Context.SENSOR_SERVICE);
-
         this.senAccelerometer = this.senSensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION);
         if (this.senAccelerometer != null) {
             this.senSensorManager.registerListener(this, this.senAccelerometer, SensorManager.SENSOR_DELAY_NORMAL);
@@ -75,7 +67,6 @@ public class PhoneSensors implements SensorEventListener {
         }
         return instance;
     }
-
 
     public static PhoneSensors getInstance() {
         if (instance == null) {
@@ -141,7 +132,6 @@ public class PhoneSensors implements SensorEventListener {
             this.acceleration[0] = event.values[0];
             this.acceleration[1] = event.values[1];
             this.acceleration[2] = event.values[2];
-            //this.acceleration = Math.sqrt(Math.pow(this.acceleration[0], 2) + Math.pow(this.acceleration[1], 2) + Math.pow(this.acceleration[2], 2));
         }
         else if (mySensor.getType() == Sensor.TYPE_PRESSURE) {
             this.pressure = event.values[0];
@@ -150,7 +140,6 @@ public class PhoneSensors implements SensorEventListener {
 
     @Override
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
-
     }
 
     @Override

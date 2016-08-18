@@ -70,6 +70,9 @@ public class RecordingThread implements Runnable {
                         tripInfoData.put("VIN", this.service.getCarManager().getVIN());
                         tripInfoData.put("timestamp", System.currentTimeMillis());
                         tripInfoData.put("fuelType", this.service.getCarManager().getFuelType().name());
+                        jo.put("trip-info", tripInfoData);
+                        OutputFile.saveData(jo.toString().replace("\\/", "/"));
+                        jo.remove("trip-info");
                     }
                     jo.put("timestamp", System.currentTimeMillis());
                     for (String key : carInfo.keySet()) {
@@ -90,7 +93,7 @@ public class RecordingThread implements Runnable {
 
                     //res.append(PhoneSensors.getInstance().toString() + ", ");
                     storeCurrentValues(carInfo);
-                    OutputFile.saveData(jo.toString());
+                    OutputFile.saveData(jo.toString().replace("\\/", "/"));
                     Log.i(this.getClass().getName(), "Storing car data: " + jo.toString());
                 } catch (ConnectionException e) {
                     e.printStackTrace();

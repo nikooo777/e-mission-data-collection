@@ -88,17 +88,22 @@ public class OBDActivity extends Activity {
         this.gpsSpeedLabel = (TextView) findViewById(R.id.textViewGPSSpeed);
         this.gpsAltitudeLabel = (TextView) findViewById(R.id.textViewAltitude);
         this.coordinatesLabel = (TextView) findViewById(R.id.textViewCoordinates);
-        boolean hasPermission = ContextCompat.checkSelfPermission(this, Manifest.permission.INTERNET) == PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED;
+        boolean hasPermission =
+                ContextCompat.checkSelfPermission(this, Manifest.permission.INTERNET) ==
+                        PackageManager.PERMISSION_GRANTED &&
+                        ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) ==
+                                PackageManager.PERMISSION_GRANTED &&
+                        ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) ==
+                                PackageManager.PERMISSION_GRANTED;
         if (!hasPermission) {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.INTERNET}, REQUEST_MULTIPLE_PERMISSIONS);
+            ActivityCompat.requestPermissions(this, new String[]{
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                    Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.INTERNET}, REQUEST_MULTIPLE_PERMISSIONS);
         }
         else {
             PhoneSensors.init(this);
         }
-        /*hasPermission = (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED);
-        if (!hasPermission) {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_ACCESS_FINE_LOCATION);
-        }*/
         CarInfo.init(this);
     }
 
@@ -107,6 +112,13 @@ public class OBDActivity extends Activity {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 
         if (requestCode == REQUEST_MULTIPLE_PERMISSIONS) {
+            for (int result : grantResults) {
+
+                //abort this action if we don't have permission to proceed
+                if (PackageManager.PERMISSION_DENIED == result) {
+                    return;
+                }
+            }
             PhoneSensors.init(this);
         }
     }
