@@ -73,8 +73,7 @@ public class FuelEconomyObdCommand extends ObdCommand {
         final SpeedCommand speedCommand = new SpeedCommand();
         speedCommand.run(in, out);
         float speed = speedCommand.getMetricSpeed();
-        boolean fuelRateSupport = false; //TODO: remove
-        if (fuelRateSupport) {
+        if (this.fuelRateSupport) {
             Log.i(this.TAG, "Fuel rate supported:");
             ConsumptionRateCommand rateCommand = new ConsumptionRateCommand();
             rateCommand.run(in, out);
@@ -106,7 +105,6 @@ public class FuelEconomyObdCommand extends ObdCommand {
                 Log.i("ENGINELOAD", "engine load: " + engineLoad);
                 // compute fuel flow L/h
                 this.flow = this.a * (MAF * engineLoad) + this.b;
-                // setFlow(fuelFlow);
 
                 //compute fuel economy L/100km
                 this.kml = 100 / (speed / this.flow);
@@ -115,10 +113,7 @@ public class FuelEconomyObdCommand extends ObdCommand {
             else if (this.fuelType == FuelType.GAS) {
                 Log.i(this.TAG, "Gasoline engine + MAF:");
                 // get l/100km
-                //float mpg= (float) (AIR_FUEL_RATIO*GASOLINE_DENSITY*GRAMS_POUND_CONVERSION*speed*KMH_MPH_CONSTANT)/(SECONDS_HOUR*MAF/*/100*/);
-                // float mpg= (float) (710.7 * speedCommand.getMetricSpeed() / MAF);
                 this.flow = (MAF * this.SECONDS_HOUR) / (this.GASOLINE_DENSITY2 * this.AIR_FUEL_RATIO);
-                //setFlow(fuelFlow);
                 this.kml = 100 / (speed / this.flow);
                 this.mpg = this.MPG_KML / this.kml;
             }
@@ -128,24 +123,18 @@ public class FuelEconomyObdCommand extends ObdCommand {
             //get alternative MAF
             final RPMCommand engineRpmCommand = new RPMCommand();
             engineRpmCommand.run(in, out);
-            while (!engineRpmCommand.isReady()) {
-                Thread.sleep(1);
-            }
+
             float RPM = (float) engineRpmCommand.getRPM();
             System.err.println(RPM);
             //get manifold pressure
             final IntakeManifoldPressureCommand pressureCommand = new IntakeManifoldPressureCommand();
             pressureCommand.run(in, out);
-            while (!pressureCommand.isReady()) {
-                Thread.sleep(1);
-            }
+
             float MAP = (float) pressureCommand.getMetricUnit();
             //get intake temperature
             final AirIntakeTemperatureCommand temperatureCommand = new AirIntakeTemperatureCommand();
             temperatureCommand.run(in, out);
-            while (!temperatureCommand.isReady()) {
-                Thread.sleep(1);
-            }
+ 
             float INTAKE_TEMP = temperatureCommand.getTemperature();
             MAF = RPM * (MAP / INTAKE_TEMP);
             // get l/100km

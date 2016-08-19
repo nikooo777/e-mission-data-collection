@@ -55,13 +55,11 @@ public class CheckObdCommands extends ObdCommand {
         pids2140.run(in, out);
         pids4160.run(in, out);
         try {
-            //Log.i("SUPPORT-0120: ", pids0120.getCalculatedResult());
-            //Log.i("SUPPORT-2140: ", pids2140.getCalculatedResult());
-            //Log.i("SUPPORT-4160: ", pids4160.getCalculatedResult());
-            long MAFPID = 1 << 16; //10
-            long MAPPID = 1 << 21; //0B
-            long FLSPID = 1 << 17; //2F
-            long FRSPID = 1 << 2;  //5E
+            //masks used to compare available PIDs with the ones we're interested in
+            final long MAFPID = 1 << 16; //10
+            final long MAPPID = 1 << 21; //0B
+            final long FLSPID = 1 << 17; //2F
+            final long FRSPID = 1 << 2;  //5E
             long pids0129_val = Long.parseLong(pids0120.getCalculatedResult().substring(0, 8), 16);
             long pids2140_val = Long.parseLong(pids2140.getCalculatedResult().substring(0, 8), 16);
             long pids4160_val = Long.parseLong(pids4160.getCalculatedResult().substring(0, 8), 16);
@@ -74,62 +72,8 @@ public class CheckObdCommands extends ObdCommand {
             this.supportFuelLevel = (FLSPID & pids2140_val) > 0;
             this.supportFuelRate = (FRSPID & pids4160_val) > 0;
         } catch (Exception ex) {
-            ex.printStackTrace(); //TODO: remove
+            ex.printStackTrace();
         }
-        //check MAF
-       /* try {
-            final MassAirFlowCommand mafCommand = new MassAirFlowCommand();
-            mafCommand.run(in, out);
-            while (!mafCommand.isReady()) {
-                Thread.sleep(1);
-            }
-            this.MAF = (float) mafCommand.getMAF();
-            if (this.MAF != -1.0f) {
-                this.supportMAF = true;
-                Log.i("CHECK", "MAF supported");
-            }
-            else {
-                this.supportMAF = false;
-                Log.i("CHECK", "MAF not supported");
-            }
-        } catch (Exception e) {
-            this.supportMAF = false;
-            Log.i("CHECK", "MAF not supported");
-        }*/
-       /* try {
-            final IntakeManifoldPressureCommand mapCommand = new IntakeManifoldPressureCommand();
-            mapCommand.run(in, out);
-            while (!mapCommand.isReady()) {
-                Thread.sleep(1);
-            }
-            System.err.println("MAP=" + mapCommand.getFormattedResult());
-            this.supportMAP = mapCommand.getMetricUnit() != 0;
-            if (this.supportMAP) {
-                Log.i("CHECK", "MAP supported");
-            }
-            else {
-                Log.i("CHECK", "MAP not supported");
-            }
-        } catch (Exception e) {
-            Log.i("CHECK", "MAP not supported");
-            this.supportMAP = false;
-        }*/
-       /* try {
-            final ConsumptionRateCommand fuelRate = new ConsumptionRateCommand();
-            fuelRate.run(in, out);
-            this.fuelRate = fuelRate.getLitersPerHour();
-            if (this.fuelRate != -1.0f) {
-                this.supportFuelRate = true;
-                Log.i("CHECK", "Fuel rate supported");
-            }
-            else {
-                this.supportFuelRate = false;
-                Log.i("CHECK", "Fuel rate not supported");
-            }
-        } catch (Exception e) {
-            this.supportFuelRate = false;
-            Log.i("CHECK", "Fuel rate  not supported");
-        }*/
         try {
             final VinCommand vinCommand = new VinCommand();
             vinCommand.run(in, out);
@@ -145,19 +89,6 @@ public class CheckObdCommands extends ObdCommand {
             this.VIN = getEcuName(in, out);
             Log.i("CHECK", "VIN unknown");
         }
-        /*try {
-            final FuelLevelCommand flc = new FuelLevelCommand();
-            flc.run(in, out);
-            this.supportFuelLevel = Float.compare(flc.getFuelLevel(), 0f) != 0;
-            if (this.supportFuelLevel) {
-                Log.i("CHECK", "Fuel Level supported");
-            }
-            else {
-                Log.i("CHECK", "Fuel Level not supported");
-            }
-        } catch (Exception ex) {
-            Log.i("CHECK", "Fuel Level not supported");
-        }*/
         this.ready = true;
     }
 
