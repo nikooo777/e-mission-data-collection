@@ -38,19 +38,19 @@ public class OBDMainService extends Service {
     public void startOBDRecording() {
         // carManager.connectToAdapter(dev);
         RecordingThread.startRecording(this);
-        Toast.makeText(getApplicationContext(), "Start recording", Toast.LENGTH_SHORT).show();
+        Toast.makeText(getApplicationContext(), "Started recording", Toast.LENGTH_SHORT).show();
     }
 
     public void stopOBDRecording() {
         RecordingThread.stopRecording();
         this.carManager.disconnectFromCar();
-        Toast.makeText(getApplicationContext(), "Stop recording", Toast.LENGTH_SHORT).show();
+        Toast.makeText(getApplicationContext(), "Stopped recording", Toast.LENGTH_SHORT).show();
     }
 
     public HashMap<String, String> currentValues() throws NoValueException {
         HashMap<String, String> ct = RecordingThread.getCurrent();
         if (ct == null) {
-            throw new NoValueException();
+            throw new NoValueException("no values currently stored");
         }
         return ct;
     }

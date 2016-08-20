@@ -1,7 +1,10 @@
-package ch.supsi.dti.e_missionconsumes.output;
+package ch.supsi.dti.e_missionconsumes;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.LinkedList;
+
+import ch.supsi.dti.e_missionconsumes.FuelType;
 
 /**
  * Created by Niko on 8/12/2016.
@@ -27,4 +30,12 @@ public class Tools {
         }
         return null;
     }
+    public static String[] FuelNames() {
+        java.util.LinkedList<String> list = new LinkedList<>();
+        for (FuelType s : FuelType.values()) {
+            list.add(s.name());
+        }
+        return list.toArray(new String[list.size()]);
+    }
 }
+

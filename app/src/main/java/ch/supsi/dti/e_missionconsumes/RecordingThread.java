@@ -22,6 +22,7 @@ public class RecordingThread implements Runnable {
     public static boolean RUN = false;
     public static RecordingThread thread;
     private boolean tripInfoStored = false;
+    private static int RECORD_INTERVAL = 1000;
 
     public RecordingThread(OBDMainService _service) {
         this.service = _service;
@@ -104,7 +105,7 @@ public class RecordingThread implements Runnable {
                 }
             }
             try {
-                Thread.sleep(Constants.RECORD_INTERVAL);
+                Thread.sleep(RECORD_INTERVAL);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }

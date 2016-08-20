@@ -37,14 +37,12 @@ import java.util.Set;
 import ch.supsi.dti.e_missionconsumes.carconnection.CarInfo;
 import ch.supsi.dti.e_missionconsumes.carconnection.CarManager;
 import ch.supsi.dti.e_missionconsumes.carconnection.ConnectionException;
-import ch.supsi.dti.e_missionconsumes.output.Tools;
 
 /**
  * TODO: fix fine/coarse mode input
  */
 public class OBDActivity extends Activity {
     private static final int REQUEST_MULTIPLE_PERMISSIONS = 112;
-    //private static final int REQUEST_ACCESS_FINE_LOCATION = 113;
     public static int REQUEST_ENABLE_BT = 1;
     public static String DEV_NAME = "";
     public FuelType fuelType = FuelType.GAS;
@@ -139,49 +137,6 @@ public class OBDActivity extends Activity {
         }
     };
 
-    public void postBTselection() {
-        try {
-            if (DEV_NAME.length() == 0) {
-                return;
-            }
-            Log.i(this.getClass().getName(), DEV_NAME);
-            mService.connectToAdapter(DEV_NAME);
-            //check fuel type
-            FuelType fuelType = mService.getCarManager().getFuelType();
-
-            //check supported operations
-            updateSupportedSensors();
-
-            //let the user select his car type
-
-
-            if (fuelType == null) {
-                fuelDialogType(OBDActivity.this);
-            }
-            else {
-                TextView ftv = (TextView) findViewById(R.id.textViewFuelType);
-                ftv.setTextColor(Color.GREEN);
-                if (fuelType == FuelType.GAS) {
-                    ftv.setTextColor(Color.YELLOW);
-                }
-                ftv.setText(fuelType.name());
-                mService.startOBDRecording();
-                this.updateThread = new UpdateParametersThread();
-                new Thread(this.updateThread).start();
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        Button b = (Button) findViewById(R.id.button);
-                        b.setText("Disconnect");
-                    }
-                });
-            }
-        } catch (ConnectionException e) {
-            e.printStackTrace();
-            Toast.makeText(OBDActivity.this, "Unable to start recording", Toast.LENGTH_LONG).show();
-        }
-    }
-
     public void serviceConnected() {
         final Button b = (Button) findViewById(R.id.button);
         b.setOnClickListener(new View.OnClickListener() {
@@ -238,12 +193,53 @@ public class OBDActivity extends Activity {
                     postBTselection();
                 }
             });
-            alertDialog.setTitle("Choose BT");
+            alertDialog.setTitle("Choose an OBD-II device");
             alertDialog.show();
         }
     }
 
+    public void postBTselection() {
+        try {
+            if (DEV_NAME.length() == 0) {
+                return;
+            }
+            Log.i(this.getClass().getName(), DEV_NAME);
+            mService.connectToAdapter(DEV_NAME);
+            //check fuel type
+            FuelType fuelType = mService.getCarManager().getFuelType();
 
+            //check supported operations
+            updateSupportedSensors();
+
+            //let the user select his car type
+
+
+            if (fuelType == null) {
+                fuelDialogType(OBDActivity.this);
+            }
+            else {
+                TextView ftv = (TextView) findViewById(R.id.textViewFuelType);
+                ftv.setTextColor(Color.GREEN);
+                if (fuelType == FuelType.GAS) {
+                    ftv.setTextColor(Color.YELLOW);
+                }
+                ftv.setText(fuelType.name());
+                mService.startOBDRecording();
+                this.updateThread = new UpdateParametersThread();
+                new Thread(this.updateThread).start();
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Button b = (Button) findViewById(R.id.button);
+                        b.setText("Disconnect");
+                    }
+                });
+            }
+        } catch (ConnectionException e) {
+            e.printStackTrace();
+            Toast.makeText(OBDActivity.this, "Unable to start recording", Toast.LENGTH_LONG).show();
+        }
+    }
     class UpdateParametersThread implements Runnable {
         public boolean RUN = false;
 
@@ -259,14 +255,14 @@ public class OBDActivity extends Activity {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        updateActParameters();
+                        updateActivityParameters();
                     }
                 });
             }
         }
     }
 
-    public void updateActParameters() {
+    public void updateActivityParameters() {
         try {
             HashMap<String, String> pm = mService.currentValues();
             TextView rpm = (TextView) findViewById(R.id.textViewRpm);
@@ -315,7 +311,8 @@ public class OBDActivity extends Activity {
             @Override
             public void run() {
                 final AlertDialog.Builder adb = new AlertDialog.Builder(c);
-                CharSequence items[] = new CharSequence[]{"Gasoline", "Diesel"};
+               // CharSequence items[] = new CharSequence[]{"Gasoline", "Diesel"};
+                CharSequence items[] = Tools.FuelNames();
                 adb.setSingleChoiceItems(items, 0, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface d, int n) {
@@ -326,7 +323,7 @@ public class OBDActivity extends Activity {
                 }).setCancelable(false).setPositiveButton("Ok", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        //if selected item was no GAS....
+                        //if selected item was not GAS....
                         if (((AlertDialog) dialog).getListView().getCheckedItemPosition() != 0) {
                             ch.supsi.dti.e_missionconsumes.OBDActivity.this.fuelType = FuelType.DIESEL;
                         }

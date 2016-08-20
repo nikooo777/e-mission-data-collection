@@ -118,7 +118,7 @@ public class FuelEconomyObdCommand extends ObdCommand {
                 this.mpg = this.MPG_KML / this.kml;
             }
         }
-        else if (!this.mafSupport && this.fuelType == FuelType.GAS) {
+        else if (!this.mapSupport && this.fuelType == FuelType.GAS) {
             Log.i(this.TAG, "Alternative MAF + Gasoline:");
             //get alternative MAF
             final RPMCommand engineRpmCommand = new RPMCommand();

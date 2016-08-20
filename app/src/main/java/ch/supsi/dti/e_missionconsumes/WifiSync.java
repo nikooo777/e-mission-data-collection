@@ -22,8 +22,6 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-import ch.supsi.dti.e_missionconsumes.output.Tools;
-
 /**
  * Created by Niko on 6/27/2016.
  */

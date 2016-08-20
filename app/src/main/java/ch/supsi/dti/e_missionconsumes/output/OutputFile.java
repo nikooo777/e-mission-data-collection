@@ -1,14 +1,13 @@
 package ch.supsi.dti.e_missionconsumes.output;
 
+import android.annotation.TargetApi;
+import android.os.Build;
 import android.util.Log;
 
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-
-import ch.supsi.dti.e_missionconsumes.Constants;
-
 
 /**
  * Created by Alan on 18/09/15.
@@ -19,10 +18,11 @@ public class OutputFile {
     public static BufferedWriter output = null;
     public static String currentFile = "";
     public static boolean RECORDING = false;
+    private static String FILE_DEF_DIR = "/sdcard/odbres/";
 
     public static void openFile() {
-        currentFile = Constants.FILE_DEF_DIR + System.currentTimeMillis() + "_sensor.txt";
-        File d = new File(Constants.FILE_DEF_DIR);
+        currentFile = FILE_DEF_DIR + System.currentTimeMillis() + "_sensor.txt";
+        File d = new File(FILE_DEF_DIR);
         if (!d.exists()) {
             d.mkdir();
             Log.i("SensorFile", "Directory " + d.getAbsolutePath() + " created");
@@ -53,6 +53,7 @@ public class OutputFile {
     }
 
 
+    @TargetApi(Build.VERSION_CODES.KITKAT)
     public static void saveData(String value) {
         if (RECORDING) {
             try {
