@@ -18,7 +18,7 @@ public class OutputFile {
     public static BufferedWriter output = null;
     public static String currentFile = "";
     public static boolean RECORDING = false;
-    private static String FILE_DEF_DIR = "/sdcard/odbres/";
+    public static String FILE_DEF_DIR = "/sdcard/odbres/";
 
     public static void openFile() {
         currentFile = FILE_DEF_DIR + System.currentTimeMillis() + "_sensor.txt";

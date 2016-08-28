@@ -32,13 +32,12 @@ public class FuelEconomyObdCommand extends ObdCommand {
     private float mpg = -1.f;
     private final float AIR_FUEL_RATIO = 14.7f;
     private final float AIR_FUEL_RATIO_DIESEL = 14.6f;
-    private final float GASOLINE_DENSITY = 6.17f;
     private final float DIESEL_DENSITY = 7.30f;
     private final float GRAMS_POUND_CONVERSION = 454.0f;
     private final float KMH_MPH_CONSTANT = 0.621371f;
     private final float SECONDS_HOUR = 3600.0f;
     private final float MPG_KML = 235.2145833f;
-    private final float GASOLINE_DENSITY2 = 739.329063f;
+    private final float GASOLINE_DENSITY = 737.22f;
     String TAG = "OBD Response";
     protected float flow = 0.f;
 
@@ -88,9 +87,6 @@ public class FuelEconomyObdCommand extends ObdCommand {
             //get MAF
             final MassAirFlowCommand mafCommand = new MassAirFlowCommand();
             mafCommand.run(in, out);
-            while (!mafCommand.isReady()) {
-                Thread.sleep(1);
-            }
             MAF = (float) mafCommand.getMAF();
             Log.i(this.TAG, "MAF: " + MAF);
             if (this.fuelType == FuelType.DIESEL) {
@@ -98,9 +94,6 @@ public class FuelEconomyObdCommand extends ObdCommand {
                 //get engine load
                 final EngineLoadObdCommand loadObdCommand = new EngineLoadObdCommand();
                 loadObdCommand.run(in, out);
-                while (!loadObdCommand.isReady()) {
-                    Thread.sleep(1);
-                }
                 float engineLoad = loadObdCommand.getPercentage();
                 Log.i("ENGINELOAD", "engine load: " + engineLoad);
                 // compute fuel flow L/h
@@ -113,7 +106,7 @@ public class FuelEconomyObdCommand extends ObdCommand {
             else if (this.fuelType == FuelType.GAS) {
                 Log.i(this.TAG, "Gasoline engine + MAF:");
                 // get l/100km
-                this.flow = (MAF * this.SECONDS_HOUR) / (this.GASOLINE_DENSITY2 * this.AIR_FUEL_RATIO);
+                this.flow = (MAF * this.SECONDS_HOUR) / (this.GASOLINE_DENSITY * this.AIR_FUEL_RATIO);
                 this.kml = 100 / (speed / this.flow);
                 this.mpg = this.MPG_KML / this.kml;
             }
@@ -134,12 +127,12 @@ public class FuelEconomyObdCommand extends ObdCommand {
             //get intake temperature
             final AirIntakeTemperatureCommand temperatureCommand = new AirIntakeTemperatureCommand();
             temperatureCommand.run(in, out);
- 
+
             float INTAKE_TEMP = temperatureCommand.getTemperature();
             MAF = RPM * (MAP / INTAKE_TEMP);
             // get l/100km
 
-            this.flow = MAF * this.SECONDS_HOUR / (this.GASOLINE_DENSITY2 * this.AIR_FUEL_RATIO);
+            this.flow = MAF * this.SECONDS_HOUR / (this.GASOLINE_DENSITY * this.AIR_FUEL_RATIO);
             //setFlow(fuelFlow);
             this.kml = 100 / (speed / this.flow);
             this.mpg = this.MPG_KML / this.kml;

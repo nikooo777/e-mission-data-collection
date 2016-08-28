@@ -147,10 +147,11 @@ public class PhoneSensors implements SensorEventListener {
         return "dev-ac=" + Arrays.toString(this.acceleration) + ", dev-speed=" + this.speed + ", dev-press=" + this.pressure + ", dev-alt=" + this.altitude + ", dev-lat=" + getLatitude() + ", dev-long=" + getLongitude();
     }
 
+    //the following multiplications and divisions are meant to reduce the precision of the accelerometer.
     public String getAccelerationAsFormattedString() {
-        return "x: " + ((double) Math.round(PhoneSensors.getInstance().getAcceleration()[0] * 100) / 100) + " m/ss\n" +
-                "y: " + ((double) Math.round(PhoneSensors.getInstance().getAcceleration()[1] * 100)) / 100 + " m/ss\n" +
-                "z: " + ((double) Math.round(PhoneSensors.getInstance().getAcceleration()[2] * 100)) / 100 + " m/ss";
+        return "x: " + ((double) Math.round(getAcceleration()[0] * 100) / 100) + " m/ss\n" +
+                "y: " + ((double) Math.round(getAcceleration()[1] * 100)) / 100 + " m/ss\n" +
+                "z: " + ((double) Math.round(getAcceleration()[2] * 100)) / 100 + " m/ss";
     }
 
     public String getPressureAsFormattedString() {

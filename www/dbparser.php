@@ -24,7 +24,6 @@
 		while($row = $rows->fetch_assoc()) 
 		{
 			$data['trip'][] = $row;
-			//echo "container id: " . $row["container id"]. " - type: " . $row["container type"]. " tag: " . $row["container tag"]." item id: ".$row["item id"]." item name: ".$row["item name"]." item status: ".$row["item status"]."<br>";
 		}
 	} 
 	$json = json_encode($data, JSON_PRETTY_PRINT);

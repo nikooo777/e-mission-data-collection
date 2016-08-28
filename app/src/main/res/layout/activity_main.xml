@@ -27,7 +27,8 @@
             android:layout_alignRight="@+id/SplitLine_hor1"
             android:layout_alignEnd="@+id/SplitLine_hor1"
             android:layout_toEndOf="@+id/button"
-            android:layout_toRightOf="@+id/button"/>
+            android:layout_toRightOf="@+id/button"
+            android:singleLine="true"/>
 
         <TextView
             android:layout_width="wrap_content"
@@ -37,7 +38,8 @@
             android:id="@+id/textViewSpeed"
             android:layout_below="@+id/textViewRpm"
             android:layout_alignLeft="@+id/textViewRpm"
-            android:layout_alignStart="@+id/textViewRpm"/>
+            android:layout_alignStart="@+id/textViewRpm"
+            android:singleLine="true"/>
 
         <TextView
             android:layout_width="wrap_content"
@@ -47,7 +49,8 @@
             android:id="@+id/textViewFuelEco"
             android:layout_alignTop="@+id/economyLabel"
             android:layout_alignLeft="@+id/textViewSpeed"
-            android:layout_alignStart="@+id/textViewSpeed"/>
+            android:layout_alignStart="@+id/textViewSpeed"
+            android:singleLine="true"/>
 
         <TextView
             android:layout_width="wrap_content"
@@ -57,7 +60,8 @@
             android:id="@+id/textViewFlow"
             android:layout_below="@+id/economyLabel"
             android:layout_alignLeft="@+id/textViewFuelEco"
-            android:layout_alignStart="@+id/textViewFuelEco"/>
+            android:layout_alignStart="@+id/textViewFuelEco"
+            android:singleLine="true"/>
 
         <TextView
             android:layout_width="wrap_content"
@@ -136,7 +140,8 @@
             android:id="@+id/textViewODO"
             android:layout_below="@+id/flowLabel"
             android:layout_alignLeft="@+id/textViewFlow"
-            android:layout_alignStart="@+id/textViewFlow"/>
+            android:layout_alignStart="@+id/textViewFlow"
+            android:singleLine="true"/>
 
         <TextView
             android:layout_width="wrap_content"
@@ -154,7 +159,8 @@
             android:id="@+id/textViewConsumed"
             android:layout_alignTop="@+id/labelConsumed"
             android:layout_alignLeft="@+id/textViewODO"
-            android:layout_alignStart="@+id/textViewODO"/>
+            android:layout_alignStart="@+id/textViewODO"
+            android:singleLine="true"/>
 
         <View
             android:id="@+id/SplitLine_hor1"
@@ -456,6 +462,7 @@
             android:layout_alignRight="@+id/textViewCoordinates"
             android:layout_alignEnd="@+id/textViewCoordinates"
             android:gravity="center_vertical"/>
+
         <View
             android:id="@+id/SplitLine_hor4"
             android:layout_width="match_parent"
@@ -465,6 +472,7 @@
             android:layout_alignParentRight="true"
             android:layout_alignParentEnd="true"
             android:layout_marginTop="51dp"/>
+
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

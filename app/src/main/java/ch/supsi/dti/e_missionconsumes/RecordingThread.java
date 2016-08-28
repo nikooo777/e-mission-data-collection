@@ -17,29 +17,28 @@ import ch.supsi.dti.e_missionconsumes.output.OutputFile;
  * Modified by Niko
  */
 public class RecordingThread implements Runnable {
-    private static HashMap<String, String> current = null;
+    private static HashMap<String, String> currentValues = null;
     public OBDMainService service;
     public static boolean RUN = false;
     public static RecordingThread thread;
     private boolean tripInfoStored = false;
-    private static int RECORD_INTERVAL = 1000;
+    private static int RECORD_INTERVAL = 200;
 
-    public RecordingThread(OBDMainService _service) {
-        this.service = _service;
+    public RecordingThread(OBDMainService service) {
+        this.service = service;
     }
 
-    //current
-    public static synchronized HashMap<String, String> getCurrent() {
-        return current;
+    public static synchronized HashMap<String, String> getCurrentValues() {
+        return currentValues;
     }
 
-    private synchronized void storeCurrentValues(HashMap<String, String> _current) {
-        current = _current;
+    private synchronized void storeCurrentValues(HashMap<String, String> currentValues) {
+        RecordingThread.currentValues = currentValues;
     }
 
-    public static void startRecording(OBDMainService _serv) {
+    public static void startRecording(OBDMainService service) {
         OutputFile.openFile();
-        thread = new RecordingThread(_serv);
+        thread = new RecordingThread(service);
         new Thread(thread).start();
     }
 
@@ -54,7 +53,6 @@ public class RecordingThread implements Runnable {
         Log.i(this.getClass().getName(), "Start Recording");
         while (RUN) {
             if (!this.service.getCarManager().isConnected()) {
-                // Toast.makeText(service.getApplicationContext(), "Car is not connected", Toast.LENGTH_LONG).show();
                 Log.i("ODBRECLOC", "Car is not connected");
             }
             else {
@@ -62,7 +60,7 @@ public class RecordingThread implements Runnable {
                     JSONObject jo = new JSONObject();
                     JSONArray jaa = new JSONArray();
                     JSONArray jac = new JSONArray();
-                    HashMap<String, String> carInfo = this.service.getCarManager().queryForParameters();
+                    HashMap<String, String> readParameters = this.service.getCarManager().queryForParameters();
                     //StringBuilder res = new StringBuilder();
 
                     if (!this.tripInfoStored) {
@@ -73,13 +71,21 @@ public class RecordingThread implements Runnable {
                         tripInfoData.put("fuelType", this.service.getCarManager().getFuelType().name());
                         jo.put("trip-info", tripInfoData);
                         OutputFile.saveData(jo.toString().replace("\\/", "/"));
+                        //empty the json object in order to free up space for the
                         jo.remove("trip-info");
                     }
                     jo.put("timestamp", System.currentTimeMillis());
-                    for (String key : carInfo.keySet()) {
-                        jo.put(key, carInfo.get(key));
-                        //res.append(key + "=" + carInfo.get(key) + ", ");
+                    for (String key : readParameters.keySet()) {
+                        jo.put(key, readParameters.get(key));
                     }
+
+                    //add phone parameters to the map
+                    readParameters.put("dev-ac", PhoneSensors.getInstance().getAccelerationAsFormattedString());
+                    readParameters.put("dev-speed", PhoneSensors.getInstance().getSpeedAsFormattedString());
+                    readParameters.put("dev-press", PhoneSensors.getInstance().getPressureAsFormattedString());
+                    readParameters.put("dev-alt", PhoneSensors.getInstance().getAltitudeAsFormattedString());
+                    readParameters.put("dev-coords", PhoneSensors.getInstance().getCoordinatesAsFormattedString());
+
                     for (double a : PhoneSensors.getInstance().getAcceleration()) {
                         jaa.put(a);
                     }
@@ -92,8 +98,10 @@ public class RecordingThread implements Runnable {
                     jac.put(PhoneSensors.getInstance().getLongitude());
                     jo.put("dev-coords", jac);
 
-                    //res.append(PhoneSensors.getInstance().toString() + ", ");
-                    storeCurrentValues(carInfo);
+                    //store all parameters
+                    storeCurrentValues(readParameters);
+
+                    //write the data to permanent storage
                     OutputFile.saveData(jo.toString().replace("\\/", "/"));
                     Log.i(this.getClass().getName(), "Storing car data: " + jo.toString());
                 } catch (ConnectionException e) {

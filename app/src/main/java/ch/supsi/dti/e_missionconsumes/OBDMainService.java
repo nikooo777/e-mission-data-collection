@@ -48,7 +48,7 @@ public class OBDMainService extends Service {
     }
 
     public HashMap<String, String> currentValues() throws NoValueException {
-        HashMap<String, String> ct = RecordingThread.getCurrent();
+        HashMap<String, String> ct = RecordingThread.getCurrentValues();
         if (ct == null) {
             throw new NoValueException("no values currently stored");
         }

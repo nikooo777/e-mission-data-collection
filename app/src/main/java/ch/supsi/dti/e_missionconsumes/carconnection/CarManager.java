@@ -15,7 +15,6 @@ import ch.supsi.dti.e_missionconsumes.FuelType;
 import ch.supsi.dti.e_missionconsumes.obd_commands.CheckObdCommands;
 import ch.supsi.dti.e_missionconsumes.obd_commands.FuelEconomyObdCommand;
 import obd.commands.SpeedCommand;
-import obd.commands.control.VinCommand;
 import obd.commands.engine.RPMCommand;
 import obd.commands.engine.ThrottlePositionCommand;
 import obd.commands.fuel.FindFuelTypeCommand;
@@ -55,6 +54,7 @@ public class CarManager {
     private double fuelAvgEconomy = 0;
     private boolean throttleWorking = true;
     private String vehicleIdentificationNumber = "UNDEFINED";
+    private Boolean throttleSupport = false;
 
     public FuelType getFuelType() {
         return this.fuelType;
@@ -80,7 +80,7 @@ public class CarManager {
         return this.connected;
     }
 
-    //this method is useful to check whether or not the throttle sensor is working as intended
+    //this method is useful to check whether or not the- throttle sensor is working as intended
     private void checkThrottle(int rpm, float speed, int throttlePosition) {
         //if the RPM is below 1200, we're standing still and the throttle position is at > 90% then the sensor is either broken or doesn't work as intended
         if (rpm < 1200 && speed < 1 && this.throttleWorking) {
@@ -123,19 +123,14 @@ public class CarManager {
             new SelectProtocolCommand(ObdProtocols.AUTO).run(in, out);
             checkSupportedSensors();
 
-            VinCommand vinCommand = new VinCommand();
-            vinCommand.run(in, out);
-            this.vehicleIdentificationNumber = "";
-            while (!vinCommand.isReady()) {
-                Thread.sleep(1);
-            }
-            this.vehicleIdentificationNumber = vinCommand.getCalculatedResult();
             String carModel = CarInfo.getInstance().getCarModel(this.vehicleIdentificationNumber);
             if (carModel.isEmpty()) {
                 CarInfo.getInstance().promptCarModel(this.vehicleIdentificationNumber);
             }
 
-            this.throttlePositionObdCommand = new ThrottlePositionCommand();
+            if (this.throttleSupport) {
+                this.throttlePositionObdCommand = new ThrottlePositionCommand();
+            }
             this.connected = true;
             this.fuelType = checkFuelType();
             if (this.fuelType != null) {
@@ -143,7 +138,12 @@ public class CarManager {
             }
         } catch (Exception e) {
             Log.i("Exception", "Bluetooth IO Exception c");
-            throw new ConnectionException();
+            try {
+                this.sock.close();
+            } catch (Exception ex) {
+
+            }
+            throw new ConnectionException(e.getMessage());
         }
     }
 
@@ -157,6 +157,8 @@ public class CarManager {
         this.fuelRateSupport = check.getSupportFuelRate();
         this.mapSupport = check.getSupportMAP();
         this.fuelLevelSupport = check.getSupportFuelLevel();
+        this.throttleSupport = check.getSupportThrottle();
+        this.vehicleIdentificationNumber = check.getVIN();
 
         Log.i(this.getClass().getName(), "Sensors supported: maf=" + this.mafSupport + ", fuelrate=" + this.fuelRateSupport + ", map=" + this.mapSupport + ",fuellevel=" + this.fuelLevelSupport);
     }
@@ -168,7 +170,7 @@ public class CarManager {
         String odometer = "0 Km";
 
         if (!this.connected) {
-            throw new ConnectionException();
+            throw new ConnectionException("Service not connected!");
         }
 
         HashMap<String, String> query = new HashMap<>();
@@ -177,12 +179,16 @@ public class CarManager {
             OutputStream out = this.sock.getOutputStream();
             this.engineRpmCommand.run(in, out);
             this.speedCommand.run(in, out);
-            this.throttlePositionObdCommand.run(in, out);
+
             this.fuelEconomy.run(in, out);
             rpmResult = this.engineRpmCommand.getRPM() + "";
             speedResult = this.speedCommand.getFormattedResult();
-            int throttlePosition = ((int) this.throttlePositionObdCommand.getPercentage());
-            checkThrottle(this.engineRpmCommand.getRPM(), this.speedCommand.getMetricSpeed(), throttlePosition);
+            int throttlePosition = -1;
+            if (this.throttleSupport) {
+                this.throttlePositionObdCommand.run(in, out);
+                throttlePosition = ((int) this.throttlePositionObdCommand.getPercentage());
+                checkThrottle(this.engineRpmCommand.getRPM(), this.speedCommand.getMetricSpeed(), throttlePosition);
+            }
 
             //check if we're idling
             if (this.speedCommand.getMetricSpeed() < 1) {
@@ -191,7 +197,7 @@ public class CarManager {
                 this.fuelEconomy.setFlow(2f);
             }
             //check if we're on cutoff state
-            else if (this.throttleWorking && this.engineRpmCommand.getRPM() >= 1200 && throttlePosition == 0) {
+            else if (this.throttleSupport && this.throttleWorking && this.engineRpmCommand.getRPM() >= 1200 && throttlePosition == 0) {
                 fuelResult = "" + 0 + " l/100km";
                 this.fuelEconomy.setFlow(0);
             }
@@ -256,10 +262,10 @@ public class CarManager {
                 Thread.sleep(1);
             }
             String type = fuelTypeObdCommand.getFormattedResult();
-            if (type.equals("Gasoline")) {
+            if (type.equals("GAS")) {
                 return FuelType.GAS;
             }
-            else if (type.equals("Diesel")) {
+            else if (type.equals("DIESEL")) {
                 return FuelType.DIESEL;
             }
         } catch (IOException e) {

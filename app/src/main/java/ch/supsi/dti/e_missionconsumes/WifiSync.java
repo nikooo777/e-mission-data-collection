@@ -22,6 +22,8 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+import ch.supsi.dti.e_missionconsumes.output.OutputFile;
+
 /**
  * Created by Niko on 6/27/2016.
  */
@@ -63,8 +65,7 @@ public class WifiSync extends BroadcastReceiver {
             else {
                 return;
             }
-            //if (info != null && info.isConnected()) {
-            File d = new File(Constants.FILE_DEF_DIR);
+            File d = new File(OutputFile.FILE_DEF_DIR);
             String[] list = d.list(new FilenameFilter() {
                 @Override
                 public boolean accept(File dir, String filename) {
