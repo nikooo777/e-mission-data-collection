@@ -30,37 +30,6 @@
 		<!-- Custom styles for this template -->
 		<link href="css/justified-nav.css" rel="stylesheet">
 		<link href="css/personalized.css" rel="stylesheet">
-		<script>
-			function loadData()
-			{
-				document.getElementById("results-location").innerHTML="";
-				if ($("#formGroupInputLarge").val() == 0)
-				{
-					txt="<p class='text-danger'>Input your token first!</p>"
-					document.getElementById("results-location").innerHTML=txt;
-				}
-				else
-				{
-					txt="<table class='table table-bordered table-condensed table-striped'><tr><td>Vehicle Identification Number</td><td>Trip date</td><td>Link to MAP</td></tr>";
-					txt2="";
-					$.getJSON("dbparser.php?token=" + $("#formGroupInputLarge").val(), function(result)
-					{
-						$.each(result, function(i, field)
-						{
-							var myScan = result.trip;
-							//console.log(myScan);
-							$.each(myScan,function(j,result2)
-							{
-								//console.log(result2);
-								txt2=txt2+"<tr><td>"+result2.VIN+"</td><td>" +result2.date+"</td><td><a href=\"map.php?file="+result2.filename+"\" class=\"btn btn-success btn-block\">Map</a></td></tr>";
-							});
-						});
-						txt=txt+txt2+"</table>";
-						document.getElementById("results-location").innerHTML=txt;
-					});  
-				}        
-			}
-		</script>
 	</head>
 	<body>
 		<div class="container">
@@ -70,36 +39,46 @@
 				<h3 class="text-muted">E-Mission Portal</h3>
 				<nav>
 					<ul class="nav nav-justified">
-						<li class="active"><a href="#">Home</a></li>
+						<li><a href="index.html">Home</a></li>
 						<li><a href="https://github.com/nikooo777/e-mission-data-collection" target="_blank">GitHub</a></li>
-						<li><a href="stats.php">Statistics</a></li>
+						<li class="active"><a href="#">Statistics</a></li>
 						<li><a href="about.html">About</a></li>
 					</ul>
 				</nav>
 			</div>
 		</div>
 		<div class="container-fluid">
-			<!--<form class="form-horizontal">-->
 			<div class="row">
 				<div class="col-xs-12" style="height:50px;"></div>
 			</div>
-			<div class="row row-centered">
-				<div class="form-group form-group-md">
-					<label class="col-sm-1 control-label col-centered" for="formGroupInputLarge">Token</label>
-					<div class="col-sm-3 col-centered">
-						<input class="form-control" type="text" id="formGroupInputLarge" placeholder="1234ABCD" onkeydown = "if (event.keyCode == 13) document.getElementById('button-pull').click()">
-					</div>
-					<button class="text-centered btn btn-warning col-sm-1 col-centered" id="button-pull" onclick="loadData()">Pull profile</button>
-				</div>
-			</div>
-			<div class="row">
-				<div class="col-xs-12" style="height:50px;"></div>
-			</div>
-			<div class="row row-centered">
-				<div id="results-location" class="col-md-6 col-centered">
-				</div>
-			</div>
-			<!--</form>-->
+				<table class="table table-bordered table-condensed table-striped">
+					<tr>
+						<td>Number of recorded trips:</td><td><?php
+																	$hostname = "127.0.0.1";
+																	$database = "emission";
+																	$dbusername = "emission";
+																	$pass = "Em1ssion!123"; //localhost only
+																	
+																	$conn = new mysqli($hostname, $dbusername, $pass, $database);
+																	// Check connection
+																	if ($conn->connect_error) {
+																		die("Connection failed: " . $conn->connect_error);
+																	}
+																
+																	$sql = "select count(*) as count from storage;";
+																	$rows=$conn->query($sql);
+																	if ($rows->num_rows > 0) {
+																		while($row = $rows->fetch_assoc()) 
+																		{
+																			print($row['count']);
+																		}
+																	}
+																	$conn->close();
+																?>
+						</td>
+					</tr>
+				</table>
+
 		</div>
 		<!-- /container -->
 	</body>

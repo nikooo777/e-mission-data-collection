@@ -111,28 +111,31 @@ public class FuelEconomyObdCommand extends ObdCommand {
                 this.mpg = this.MPG_KML / this.kml;
             }
         }
-        else if (!this.mapSupport && this.fuelType == FuelType.GAS) {
+        else if (this.mapSupport && this.fuelType == FuelType.GAS) {
             Log.i(this.TAG, "Alternative MAF + Gasoline:");
             //get alternative MAF
             final RPMCommand engineRpmCommand = new RPMCommand();
             engineRpmCommand.run(in, out);
 
             float RPM = (float) engineRpmCommand.getRPM();
-            System.err.println(RPM);
+            //System.err.println(RPM);
             //get manifold pressure
             final IntakeManifoldPressureCommand pressureCommand = new IntakeManifoldPressureCommand();
             pressureCommand.run(in, out);
 
             float MAP = (float) pressureCommand.getMetricUnit();
+            Log.i("MAP:", "val: " + MAP);
             //get intake temperature
             final AirIntakeTemperatureCommand temperatureCommand = new AirIntakeTemperatureCommand();
             temperatureCommand.run(in, out);
 
-            float INTAKE_TEMP = temperatureCommand.getTemperature();
-            MAF = RPM * (MAP / INTAKE_TEMP);
+
+            float INTAKE_TEMP = temperatureCommand.getKelvin();
+            Log.i("ITEMP:", "val: " + INTAKE_TEMP);
+            MAF = RPM * MAP / INTAKE_TEMP;
             // get l/100km
 
-            this.flow = MAF * this.SECONDS_HOUR / (this.GASOLINE_DENSITY * this.AIR_FUEL_RATIO);
+            this.flow = (MAF * this.SECONDS_HOUR) / (this.GASOLINE_DENSITY * this.AIR_FUEL_RATIO) / 26; //26 is the magic number
             //setFlow(fuelFlow);
             this.kml = 100 / (speed / this.flow);
             this.mpg = this.MPG_KML / this.kml;

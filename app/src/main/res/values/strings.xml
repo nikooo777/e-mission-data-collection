@@ -80,9 +80,9 @@
     <string name="ODO">ODO</string>
     <string name="fuelFlow">Fuel flow</string>
     <string name="fuelEco">Fuel economy</string>
-    <string name="rpm">rpm</string>
-    <string name="speed">speed</string>
-    <string name="fuelEco1">fuelEco</string>
+    <string name="rpm">0</string>
+    <string name="speed">0 km/h</string>
+    <string name="fuelEco1">0 L/100km</string>
     <string name="fuelFlow1">fuelFlow</string>
     <string name="nullKm">0 Km</string>
     <string name="nullL">0 L</string>
@@ -107,6 +107,7 @@
     <string name="gps_speed">GPS Speed</string>
     <string name="coordinates">Coordinates</string>
     <string name="lat_nlong">lat\nlong</string>
+    <string name="na_l_h">0 l/h</string>
 
     <string-array name="string_array_trips">
         <item>School</item>

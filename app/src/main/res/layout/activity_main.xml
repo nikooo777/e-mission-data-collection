@@ -56,7 +56,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceMedium"
-            android:text="@string/fuelFlow1"
+            android:text="@string/na_l_h"
             android:id="@+id/textViewFlow"
             android:layout_below="@+id/economyLabel"
             android:layout_alignLeft="@+id/textViewFuelEco"
@@ -285,59 +285,6 @@
             android:layout_alignParentRight="true"
             android:layout_alignParentEnd="true"
             android:layout_above="@+id/textViewPressure"/>
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:text="@string/na"
-            android:id="@+id/textViewMAP"
-            android:layout_alignParentRight="true"
-            android:layout_alignParentEnd="true"
-            android:layout_toRightOf="@+id/MAPCheckBox"
-            android:layout_toEndOf="@+id/MAPCheckBox"
-            android:layout_alignTop="@+id/labelMAP"
-            android:layout_alignBottom="@+id/labelMAP"/>
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:text="@string/na"
-            android:id="@+id/textViewMAF"
-            android:layout_toRightOf="@+id/MAPCheckBox"
-            android:layout_alignRight="@+id/textViewMAP"
-            android:layout_alignEnd="@+id/textViewMAP"
-            android:layout_below="@+id/textViewMAP"
-            android:layout_above="@+id/FuelLevelCheckBox"/>
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:text="@string/na"
-            android:id="@+id/textViewFuelLevel"
-            android:layout_alignLeft="@+id/textViewMAF"
-            android:layout_alignStart="@+id/textViewMAF"
-            android:layout_alignRight="@+id/textViewMAF"
-            android:layout_alignEnd="@+id/textViewMAF"
-            android:layout_above="@+id/labelFuelRateSupport"
-            android:layout_below="@+id/MAFCheckBox"/>
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:text="@string/na"
-            android:id="@+id/textViewFuelRate"
-            android:layout_below="@+id/textViewFuelLevel"
-            android:layout_alignParentRight="true"
-            android:layout_alignParentEnd="true"
-            android:layout_alignBottom="@+id/FuelRateSupport"
-            android:layout_toEndOf="@+id/textViewConsumed"
-            android:layout_alignLeft="@+id/textViewFuelLevel"
-            android:layout_alignStart="@+id/textViewFuelLevel"
-            android:layout_toRightOf="@+id/textViewConsumed"/>
 
         <TextView
             android:layout_width="wrap_content"

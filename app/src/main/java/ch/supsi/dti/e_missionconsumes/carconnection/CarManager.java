@@ -139,7 +139,7 @@ public class CarManager {
         } catch (Exception e) {
             Log.i("Exception", "Bluetooth IO Exception c");
             try {
-                this.sock.close();
+                disconnectFromCar();
             } catch (Exception ex) {
 
             }

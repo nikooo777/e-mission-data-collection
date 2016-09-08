@@ -20,7 +20,7 @@
     <div id="map"></div>
 	<p>test</p>
     <script>
-	  var resolution = 2;
+	  var resolution = 5;
       var map;
       function initMap() {
         map = new google.maps.Map(document.getElementById('map'), {
@@ -58,7 +58,7 @@
 						'</div>'+
 						'<h1 id="firstHeading" class="firstHeading">E-Mission details</h1>'+
 						'<div id="bodyContent">'+
-						'<p><b>Speed: </b>'+ tripData['dev-speed'] +' km/h</p>'+
+						'<p><b>Speed: </b>'+ tripData['dev-speed'].toFixed(1) +' km/h</p>'+
 						'<p><b>Travelled Distance: </b>'+ tripData.OD +'</p>'+
 						'<p><b>Consumed Fuel: </b>'+ tripData.FC +'</p>'+
 						'<p><b>Avg fuel rate: </b>'+ tripData.FEC +'</p>'+
